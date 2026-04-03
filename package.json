@@ -1,0 +1,40 @@
+{
+  "name": "docsagent",
+  "version": "1.0.0",
+  "description": "Private Local Documents Search Assistant",
+  "main": "dist/index.mjs",
+  "bin": {
+    "docsagent": "./dist/cli.mjs",
+    "dag": "./dist/cli.mjs",
+    "da": "./dist/cli.mjs"
+  },
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/cli.ts --format esm --tsconfig tsconfig.json --clean --minify",
+    "dev": "tsup src/index.ts --format esm --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.1",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "zod": "^3.22.4"
+  },
+  "keywords": [
+    "private",
+    "personal",
+    "local",
+    "documents",
+    "search"
+  ],
+  "author": "Vincent",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/docsagent/docsagent",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/docsagent/docsagent.git"
+  }
+}
