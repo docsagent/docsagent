@@ -1,5 +1,5 @@
 {
-  "name": "docsagent",
+  "name": "@docsagent/docsagent",
   "version": "1.0.0",
   "description": "Private Local Documents Search Assistant",
   "main": "dist/index.mjs",
@@ -32,6 +32,9 @@
   ],
   "author": "Vincent",
   "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "homepage": "https://github.com/docsagent/docsagent",
   "repository": {
     "type": "git",

@@ -27,7 +27,7 @@ Modern AI Agents are incredibly smart, but they are "blind" to your private desk
 
 #### 1. Install via NPM
 ```bash
-npm install -g docsagent
+npm install -g @docsagent/docsagent
 ```
 
 #### 2. CLI Usage (Local Indexing & Search)
