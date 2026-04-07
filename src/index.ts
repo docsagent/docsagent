@@ -3,6 +3,7 @@ import { getBinaryPath } from "./utils.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import net from "net";
 
 const DEFAULT_PORT = 18688;
 
@@ -20,24 +21,63 @@ export interface SearchResult {
 export class DocsAgent {
   private process: ChildProcess | null = null;
   private binaryPath: string;
-  private port: number;
-  private baseUrl: string;
+  private port: number = DEFAULT_PORT;
+  private baseUrl: string = `http://localhost:${DEFAULT_PORT}`;
   private initialPath: string | string[] | undefined;
   private readyPromise: Promise<void>;
 
   /**
    * Initialize DocsAgent and start the C++ engine immediately.
    * @param path Local folder directory or an array of file paths. Optional.
-   * @param port The port for the local service. Defaults to 18688.
    */
-  constructor(path?: string | string[], port: number = DEFAULT_PORT) {
+  constructor(path?: string | string[]) {
     this.binaryPath = getBinaryPath();
     this.initialPath = path;
-    this.port = port;
-    this.baseUrl = `http://localhost:${this.port}`;
 
     // Start the C++ engine immediately upon construction
     this.readyPromise = this.startEngine();
+  }
+
+  /**
+   * Checks if a port is available to listen on.
+   */
+  private isPortAvailable(port: number): Promise<boolean> {
+    return new Promise((resolve) => {
+      const server = net.createServer();
+      server.once("error", () => resolve(false));
+      server.once("listening", () => {
+        server.close();
+        resolve(true);
+      });
+      server.listen(port);
+    });
+  }
+
+  /**
+   * Scans for an existing DocsAgent service or an available port.
+   */
+  private async findPort(): Promise<number> {
+    const START_PORT = 18688;
+    // We scan a reasonable range first for an existing service
+    for (let p = START_PORT; p < START_PORT + 20; p++) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 100);
+        const res = await fetch(`http://localhost:${p}/status`, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (res.ok) return p;
+      } catch {
+        // Not responding or not DocsAgent
+      }
+    }
+
+    // If no existing service, find the first available port
+    let p = START_PORT;
+    while (p < 65535) {
+      if (await this.isPortAvailable(p)) return p;
+      p++;
+    }
+    throw new Error("No available ports found");
   }
 
   /**
@@ -45,6 +85,9 @@ export class DocsAgent {
    * If a service is already running on the target port, it will skip spawning.
    */
   private async startEngine(): Promise<void> {
+    this.port = await this.findPort();
+    this.baseUrl = `http://localhost:${this.port}`;
+
     // Check if a service is already running on this port
     try {
       const controller = new AbortController();
