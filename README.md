@@ -2,7 +2,7 @@
 
 **The High-Performance Local Intelligence Layer for AI Agents.**
 
-DocsAgent is a professional, local-first document intelligence engine and MCP (Model Context Protocol) server. It provides a secure, near-instant bridge between your private local files and advanced agentic platforms like **OpenClaw**, **Claude Code**, and **Cursor**.
+DocsAgent is a professional, local-first documents intelligence engine and MCP (Model Context Protocol) server. It provides a secure, near-instant bridge between your private local files and advanced agentic platforms like **OpenClaw**, **Claude Code**, and **Cursor**.
 
 **100% Local. 100% Private. Zero Data Leakage.**
 
