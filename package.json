@@ -1,6 +1,6 @@
 {
   "name": "@docsagent/docsagent",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Private Local Documents Search Assistant",
   "main": "dist/index.mjs",
   "bin": {
@@ -15,7 +15,8 @@
   "scripts": {
     "build": "tsup src/index.ts src/cli.ts --format esm --tsconfig tsconfig.json --clean --minify",
     "dev": "tsup src/index.ts --format esm --watch",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "postinstall": "node scripts/install.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.1",

@@ -102,6 +102,10 @@ export class DocsAgent {
       // Not running, proceed to spawn
     }
 
+    if (!this.binaryPath) {
+      throw new Error(`Engine binary path is not defined. Please ensure your platform is supported and binaries are correctly bundled.`);
+    }
+
     const args = ["--port", this.port.toString()];
     if (this.initialPath) {
       const dirArg = Array.isArray(this.initialPath) 
