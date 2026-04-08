@@ -1,6 +1,6 @@
 {
   "name": "@docsagent/docsagent",
-  "version": "1.0.2",
+  "version": "1.0.7",
   "description": "Private Local Documents Search Assistant",
   "main": "dist/index.mjs",
   "bin": {
@@ -10,7 +10,8 @@
   },
   "files": [
     "dist",
-    "bin"
+    "bin",
+    "scripts"
   ],
   "scripts": {
     "build": "tsup src/index.ts src/cli.ts --format esm --tsconfig tsconfig.json --clean --minify",

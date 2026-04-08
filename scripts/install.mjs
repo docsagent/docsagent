@@ -31,11 +31,7 @@ const getBinaryInfo = () => {
       "pdfium.dll",
     ];
   } else if (platform === "linux") {
-    if (arch === "arm64") {
-      binaryName = "docsagent-aarch64-unknown-linux-gnu";
-    } else {
-      binaryName = "docsagent-x86_64-unknown-linux-gnu";
-    }
+    binaryName = "docsagent-linux-gnu";
     libs = ["libawadb.so", "libpdfium.so"];
   }
 
@@ -62,15 +58,30 @@ async function install() {
   try {
     // Set executable permissions for the main binary
     if (process.platform !== "win32") {
-      fs.chmodSync(mainBinaryPath, 0o755);
-      console.log(`Set executable permissions for ${binaryName}`);
-    }
+      if (fs.existsSync(mainBinaryPath)) {
+        fs.chmodSync(mainBinaryPath, 0o755);
+        console.log(`Set executable permissions for ${binaryName}`);
+      } else {
+        console.warn(`Warning: Main binary not found at ${mainBinaryPath}.`);
+      }
 
-    // Verify libraries exist
-    for (const lib of libs) {
-      const libPath = path.join(binDir, lib);
-      if (!fs.existsSync(libPath)) {
-        console.warn(`Warning: Library ${lib} not found at ${libPath}.`);
+      // Set executable permissions for libraries
+      for (const lib of libs) {
+        const libPath = path.join(binDir, lib);
+        if (fs.existsSync(libPath)) {
+          fs.chmodSync(libPath, 0o755);
+          console.log(`Set executable permissions for ${lib}`);
+        } else {
+          console.warn(`Warning: Library ${lib} not found at ${libPath}.`);
+        }
+      }
+    } else {
+      // Windows: Verify libraries exist
+      for (const lib of libs) {
+        const libPath = path.join(binDir, lib);
+        if (!fs.existsSync(libPath)) {
+          console.warn(`Warning: Library ${lib} not found at ${libPath}.`);
+        }
       }
     }
 

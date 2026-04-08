@@ -1,4 +1,5 @@
 import { ChildProcess, spawn } from "child_process";
+import path from "path";
 import { getBinaryPath } from "./utils.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -114,10 +115,19 @@ export class DocsAgent {
       args.push("--source", dirArg);
     }
 
+    const binDir = path.dirname(this.binaryPath);
+    const env = { ...process.env };
+    if (process.platform === "linux") {
+      env.LD_LIBRARY_PATH = binDir + (process.env.LD_LIBRARY_PATH ? `:${process.env.LD_LIBRARY_PATH}` : "");
+    } else if (process.platform === "darwin") {
+      env.DYLD_LIBRARY_PATH = binDir + (process.env.DYLD_LIBRARY_PATH ? `:${process.env.DYLD_LIBRARY_PATH}` : "");
+    }
+
     return new Promise((resolve, reject) => {
       this.process = spawn(this.binaryPath, args, {
         stdio: "ignore",
         detached: true,
+        env: env,
       });
 
       // Allow the process to stay alive after the parent exits
