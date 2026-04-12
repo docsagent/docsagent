@@ -1,6 +1,6 @@
 {
   "name": "@docsagent/docsagent",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "description": "Private Local Documents Search Assistant",
   "main": "dist/index.mjs",
   "bin": {

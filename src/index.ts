@@ -239,7 +239,7 @@ export class DocsAgent {
    */
   public async close(): Promise<void> {
     try {
-      await this.request("/close", "POST");
+      await this.request("/close", "GET");
     } catch {
       // If request fails (e.g. already closed), fallback to local kill if we started it
       if (this.process) {
@@ -256,7 +256,7 @@ export class DocsAgent {
     await this.readyPromise;
     const server = new McpServer({
       name: "DocsAgent",
-      version: "1.0.0",
+      version: "1.1.0",
     });
 
     server.tool(

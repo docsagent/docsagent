@@ -18,12 +18,17 @@ Modern AI Agents are incredibly smart, but they are "blind" to your private desk
 *   **🔒 Absolute Privacy:** All document parsing, indexing, and vector storage happen strictly on your own hardware. Your data never leaves your machine.
 *   **⚡ High-Performance Core:** Powered by a native C++ engine. Experience millisecond-level retrieval even across massive document libraries.
 *   **🔌 MCP Native:** Built-in support for the **Model Context Protocol (MCP)**, making it instantly compatible with the latest AI tools.
-*   **📂 Format Mastery:** Native parsing for PDF, Word (.docx), Excel (.xlsx), PPTX, Markdown, and TXT.
+*   **📂 Format Mastery:** Native parsing for PDF, Word (.docx), PPTX.
 *   **🤖 Local LLM Ready:** Works seamlessly with Claude 3.5/GPT-4o or run completely air-gapped with local models via Ollama.
 
 ---
 
 ### 🚀 Quick Start
+
+### 📄 SKILL.md
+This file provides detailed instructions and guidelines for using the DocsAgent skill, including its purpose, features, and usage examples. [SKILL.md](SKILL.md)
+
+---
 
 #### 1. Install via NPM
 ```bash
