@@ -24,7 +24,7 @@ DocsAgent is a local-first documentation engine designed to perform lightning-fa
 ## Installation
 DocsAgent is a CLI toolkit, when you install the global `docsagent` package, You can directly use 'docsagent' command.
 ```bash
-npm install @docsagent/docsagent
+npm install -g @docsagent/docsagent
 ```
 For more information, please see https://github.com/docsagent/docsagent.
 
