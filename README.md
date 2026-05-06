@@ -5,11 +5,10 @@
 DocsAgent is a professional, local-first documents intelligence engine and MCP (Model Context Protocol) server. It provides a secure, near-instant bridge between your private local files and advanced agentic platforms like **OpenClaw**, **Claude Code**, and **Cursor**.
 
 **100% Local. 100% Private. Zero Data Leakage.**
-
 ### 🎓 Zotero Integration: papersgpt-for-zotero
 **papersgpt-for-zotero** is an MCP server built on DocsAgent that enables AI agents to connect and search papers in your Zotero library.
 
-To configure it, add the following to your MCP settings:
+To configure it, add the following to your MCP settings. 
 
 ```json
 {
@@ -19,12 +18,13 @@ To configure it, add the following to your MCP settings:
       "args": [
         "-y",
         "papersgpt-for-zotero",
-        "mcp"
+        "mcp",
       ]
     }
   }
 }
 ```
+**Note:** If your Zotero data storage path is not the default (~/Zotero or ~\Zotero), then you will need to modify the `args` value to include your real Zotero data storage path behind the "mcp".
 
 ---
 
