@@ -26,6 +26,26 @@ To configure it, add the following to your MCP settings.
 ```
 **Note:** If your Zotero data storage path is not the default (~/Zotero or ~\Zotero), then you will need to modify the `args` value to include your real Zotero data storage path behind the "mcp".
 
+### 🎓 Obsidian Integration: docsagent-for-obsidian
+**docsagent-for-obsidian** is an MCP server built on DocsAgent that enables AI agents to connect and search personal notes in your Obsidian.
+
+To configure it, add the following to your MCP settings. 
+
+```json
+{
+  "mcpServers": {
+    "docsagent-for-obsidian": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "docsagent-for-obsidian",
+        "mcp",
+      ]
+    }
+  }
+}
+```
+**Note:** If your Obsidian data storage path is not the default (~/Documents/Obsidian Vault or ~\\Documents\\Obsidian Vault), then you will need to modify the `args` value to include your real obsidian data storage path behind the "mcp".
 ---
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
