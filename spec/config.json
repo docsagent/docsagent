@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DocsAgent configuration",
+  "description": "Schema for ~/.docsagent/config.json. Both the C++ core and the MCP shells read this one file. Unknown keys are accepted and ignored.",
+  "type": "object",
+  "properties": {
+    "coreHost": {
+      "type": "string",
+      "default": "0.0.0.0",
+      "description": "Address the shell dials and the core binds (0.0.0.0 = every interface, so other machines can reach it; use a LAN IP from a remote shell)."
+    },
+    "httpPort": {
+      "type": "integer",
+      "default": 23120,
+      "minimum": 1,
+      "maximum": 65535,
+      "description": "Core HTTP port; the shell posts JSON-RPC to http://{coreHost}:{httpPort}/rpc."
+    },
+    "coreBinary": {
+      "type": "string",
+      "default": "",
+      "description": "Path to the DocsAgent Core binary used by 'docsagent start/stop/restart'. Empty = the platform binary bundled in bin/ (or a .js/.mjs entry run with node)."
+    },
+    "zoteroDataDir": {
+      "type": "string",
+      "default": "~/Zotero",
+      "description": "Zotero data directory containing zotero.sqlite and storage/."
+    },
+    "zoteroApiUrl": {
+      "type": "string",
+      "default": "http://localhost:23119/api",
+      "description": "Zotero local API base URL used for write operations."
+    },
+    "zoteroGroups": {
+      "type": "array",
+      "default": [],
+      "description": "Group libraries synced by the shell via the Zotero Web API.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "groupId": { "type": "integer", "minimum": 1 },
+          "apiKey": { "type": "string", "minLength": 1 },
+          "displayName": { "type": "string" },
+          "readOnly": { "type": "boolean", "default": true }
+        },
+        "required": ["groupId", "apiKey"],
+        "additionalProperties": false
+      }
+    },
+    "indexCheckInterval": {
+      "type": "integer",
+      "default": 300,
+      "minimum": 30,
+      "description": "Core incremental index check interval, seconds."
+    },
+    "groupSyncInterval": {
+      "type": "integer",
+      "default": 3600,
+      "minimum": 60,
+      "description": "Group library sync interval, seconds."
+    },
+    "enableWrites": {
+      "type": "boolean",
+      "default": false,
+      "description": "When false the three write tools are not registered at all."
+    },
+    "writeRateLimitPerHour": {
+      "type": "integer",
+      "default": 30,
+      "minimum": 1
+    },
+    "defaultSource": {
+      "type": "string",
+      "default": "zotero"
+    },
+    "maxTokensPerTool": {
+      "type": "integer",
+      "default": 4000,
+      "minimum": 200
+    },
+    "logLevel": {
+      "type": "string",
+      "enum": ["debug", "info", "warn", "error"],
+      "default": "info"
+    },
+    "transport": {
+      "type": "string",
+      "enum": ["stdio", "streamable-http"],
+      "default": "stdio"
+    },
+    "httpListenAddr": {
+      "type": "string",
+      "default": "0.0.0.0:8080",
+      "description": "Listen address in transport=streamable-http mode. Bind an internal interface only."
+    },
+    "authMode": {
+      "type": "string",
+      "enum": ["none", "api-key", "oauth2"],
+      "default": "none",
+      "description": "Remote mode authentication. oauth2 is reserved (not implemented yet)."
+    },
+    "authConfig": {
+      "type": "object",
+      "default": {},
+      "description": "Auth settings. For api-key: { apiKey }. For oauth2 (reserved): issuer/audience settings."
+    },
+    "rbacRoles": {
+      "type": "object",
+      "default": {},
+      "description": "Role name -> list of allowed tool names. Reserved for remote mode."
+    }
+  },
+  "additionalProperties": true
+}

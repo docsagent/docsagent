@@ -1,0 +1,41 @@
+{
+  "name": "get_metadata",
+  "title": "Get item metadata",
+  "description": "Get structured properties of a single entry: bibliographic metadata, abstract, annotations, child notes, and citation formats.",
+  "inputSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Global ID, e.g. \"zotero:ABCD1234\"."
+      },
+      "include": {
+        "type": "array",
+        "items": { "enum": ["metadata", "abstract", "annotations", "notes", "citation"] },
+        "minItems": 1,
+        "default": ["metadata"],
+        "description": "Sections to return. Returns only requested sections."
+      },
+      "citationFormat": {
+        "enum": ["bibtex", "csljson", "formatted"],
+        "default": "bibtex",
+        "description": "Format when include contains citation."
+      },
+      "citationStyle": {
+        "type": "string",
+        "description": "CSL style name, e.g. \"apa\". Only used when citationFormat=formatted."
+      },
+      "max_tokens": {
+        "type": "integer",
+        "minimum": 200,
+        "maximum": 50000,
+        "default": 4000,
+        "description": "Token ceiling. Notes are returned in full until the budget is hit, then truncated with truncated/fullLength flags."
+      }
+    },
+    "required": ["id"],
+    "additionalProperties": false
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "version": "4.0.0",
+  "description": "DocsAgent shell error codes. Every tool failure is returned as an MCP result with isError=true and a JSON body {\"error\":{\"code\",\"message\",\"suggested_call\"?}}. suggested_call is a tool-call suggestion the agent can retry directly: {\"tool\",\"args\"?,\"note\"?}.",
+  "errors": {
+    "source_not_found": {
+      "trigger": "Unregistered or unknown source",
+      "suggested_call": { "tool": "list_sources", "args": {} }
+    },
+    "target_not_supported": {
+      "trigger": "Requested target is not supported by the source",
+      "suggested_call": { "note": "Retry with the first target reported as supported by list_sources" }
+    },
+    "include_not_supported": {
+      "trigger": "Requested include section is not supported by the source",
+      "suggested_call": { "note": "Retry with the includes reported as supported by list_sources" }
+    },
+    "missing_query": {
+      "trigger": "get_content with mode=passages but no query",
+      "suggested_call": { "tool": "get_content", "args": { "mode": "fulltext" } }
+    },
+    "no_content": {
+      "trigger": "Item not found or item has no readable attachment",
+      "suggested_call": { "tool": "get_metadata", "args": { "include": ["metadata"] } }
+    },
+    "orphan_note": {
+      "trigger": "add_note produced a note without parentItem; the write was rolled back",
+      "suggested_call": null
+    },
+    "capability_not_supported": {
+      "trigger": "Tool or parameter uses a capability the source does not declare",
+      "suggested_call": null
+    },
+    "missing_input": {
+      "trigger": "import_item called without paths or identifiers (exactly one is required)",
+      "suggested_call": null
+    },
+    "write_disabled": {
+      "trigger": "Write tool invoked while enableWrites=false",
+      "suggested_call": null
+    },
+    "rate_limited": {
+      "trigger": "Write operations exceeded writeRateLimitPerHour",
+      "suggested_call": null
+    },
+    "core_unavailable": {
+      "trigger": "DocsAgent Core is not reachable at http://{coreHost}:{httpPort}/rpc (connection refused)",
+      "suggested_call": null
+    },
+    "core_timeout": {
+      "trigger": "DocsAgent Core did not answer within the request timeout",
+      "suggested_call": null
+    },
+    "index_building": {
+      "trigger": "The index for the target source is currently being built",
+      "suggested_call": null
+    },
+    "index_unavailable": {
+      "trigger": "The index for the target source is missing or damaged",
+      "suggested_call": null
+    },
+    "web_api_error": {
+      "trigger": "Zotero local API or Zotero Web API request failed",
+      "suggested_call": null
+    },
+    "auth_failed": {
+      "trigger": "Zotero Web API rejected the configured API key",
+      "suggested_call": null
+    },
+    "unauthorized": {
+      "trigger": "Remote (Streamable HTTP) request without valid credentials",
+      "suggested_call": null
+    },
+    "forbidden": {
+      "trigger": "Remote request authenticated but not permitted to use this tool",
+      "suggested_call": null
+    },
+    "session_expired": {
+      "trigger": "Remote MCP session is no longer valid; re-initialize",
+      "suggested_call": null
+    }
+  }
+}

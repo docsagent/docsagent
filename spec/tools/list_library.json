@@ -1,0 +1,36 @@
+{
+  "name": "list_library",
+  "title": "Browse library structure",
+  "description": "Browse the library structure: collections (with drill-down), items in a collection, tags, saved searches, or standalone notes.",
+  "inputSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "mode": {
+        "enum": ["collections", "items", "tags", "saved_searches", "standalone_notes"],
+        "default": "collections"
+      },
+      "parentId": {
+        "type": "string",
+        "description": "mode=collections: list children of this collection. Omit for top level."
+      },
+      "containerId": {
+        "type": "string",
+        "description": "mode=items: collection whose items to list."
+      },
+      "limit": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 200,
+        "default": 50
+      },
+      "max_tokens": {
+        "type": "integer",
+        "minimum": 200,
+        "maximum": 20000,
+        "default": 2000
+      }
+    },
+    "additionalProperties": false
+  }
+}

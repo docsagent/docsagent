@@ -1,36 +1,32 @@
 {
-  "name": "@docsagent/docsagent",
-  "version": "1.1.0",
-  "description": "Private Local Documents Search Assistant",
-  "main": "dist/index.mjs",
+  "name": "@docsagent/mcp-zotero",
+  "version": "4.0.0",
+  "description": "DocsAgent MCP shell for Zotero \u2014 spec-driven MCP server over a resident C++ search core (stdio + Streamable HTTP)",
+  "type": "module",
+  "main": "dist/cli.js",
   "bin": {
-    "docsagent": "./dist/cli.mjs",
-    "dag": "./dist/cli.mjs",
-    "da": "./dist/cli.mjs"
+    "docsagent": "./dist/cli.js"
   },
   "files": [
     "dist",
-    "bin",
-    "scripts"
+    "spec",
+    "scripts",
+    "bin"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/cli.ts --format esm --tsconfig tsconfig.json --clean --minify",
-    "dev": "tsup src/index.ts --format esm --watch",
+    "build": "tsup src/cli.ts --format esm --tsconfig tsconfig.json --clean --minify",
+    "dev": "tsup src/cli.ts --format esm --watch",
+    "test": "npm run build && node --test tests/smoke.test.mjs tests/core-service.test.mjs",
     "prepublishOnly": "npm run build",
     "postinstall": "node scripts/install.mjs"
   },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.1",
-    "tsup": "^8.0.0",
-    "typescript": "^5.0.0",
-    "zod": "^3.22.4"
-  },
   "keywords": [
-    "private",
-    "personal",
-    "local",
-    "documents",
-    "search"
+    "mcp",
+    "zotero",
+    "reference-manager",
+    "papers",
+    "local-first",
+    "model-context-protocol"
   ],
   "author": "Vincent",
   "license": "Apache-2.0",
@@ -41,5 +37,16 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/docsagent/docsagent.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "ajv": "^8.17.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
   }
 }

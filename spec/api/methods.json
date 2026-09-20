@@ -1,0 +1,571 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "4.0.0",
+  "description": "Request/response schemas for DocsAgent Core JSON-RPC methods. All params objects are validated by the core; unknown keys are rejected. IDs in responses are source-local ids; shells compose global ids as {source}:{localId}.",
+  "common": {
+    "sourceParam": { "type": "string", "description": "Source name, e.g. \"zotero\" or \"zotero-group:12345\"." },
+    "target": { "enum": ["items", "annotations", "notes"] },
+    "filters": {
+      "type": "object",
+      "properties": {
+        "containerId": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "yearFrom": { "type": "integer" },
+        "yearTo": { "type": "integer" },
+        "itemType": { "type": "string" },
+        "authors": { "type": "array", "items": { "type": "string" } },
+        "colors": { "type": "array", "items": { "type": "string" } },
+        "titleContains": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "itemSummary": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Source-local id." },
+        "type": { "type": "string", "description": "item | annotation | note | attachment" },
+        "title": { "type": "string" },
+        "authors": { "type": "array", "items": { "type": "string" } },
+        "year": { "type": ["integer", "null"] },
+        "relevance": { "type": "number" },
+        "itemType": { "type": "string" }
+      },
+      "required": ["id", "type", "relevance"]
+    }
+  },
+  "methods": {
+    "health": {
+      "description": "Liveness and version.",
+      "request": { "type": "object", "properties": {}, "additionalProperties": false },
+      "response": {
+        "type": "object",
+        "properties": {
+          "status": { "const": "ok" },
+          "version": { "type": "string" },
+          "uptimeSec": { "type": "integer" }
+        },
+        "required": ["status", "version"]
+      }
+    },
+    "listSources": {
+      "description": "Registered sources and declared capabilities.",
+      "request": { "type": "object", "properties": {}, "additionalProperties": false },
+      "response": {
+        "type": "object",
+        "properties": {
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "displayName": { "type": "string" },
+                "type": { "type": "string", "description": "zotero | zotero-group | vault | app | directory" },
+                "status": { "enum": ["ready", "building", "unavailable"] },
+                "writable": { "type": "boolean" },
+                "targets": { "type": "array", "items": { "$ref": "#/common/target" } },
+                "includes": { "type": "array", "items": { "type": "string" } },
+                "browseModes": { "type": "array", "items": { "type": "string" } },
+                "filters": { "type": "array", "items": { "type": "string" } },
+                "capabilities": { "type": "array", "items": { "type": "string" } }
+              },
+              "required": ["name", "type", "status", "writable", "targets"]
+            }
+          }
+        },
+        "required": ["sources"]
+      }
+    },
+    "getItem": {
+      "description": "Metadata of one item (bibliographic fields incl. abstract).",
+      "request": {
+        "type": "object",
+        "properties": { "source": { "$ref": "#/common/sourceParam" }, "id": { "type": "string" } },
+        "required": ["source", "id"],
+        "additionalProperties": false
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "itemType": { "type": "string" },
+          "title": { "type": "string" },
+          "abstractNote": { "type": ["string", "null"] },
+          "creators": { "type": "array", "items": { "type": "object" } },
+          "date": { "type": ["string", "null"] },
+          "year": { "type": ["integer", "null"] },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "collections": { "type": "array", "items": { "type": "string" } },
+          "url": { "type": ["string", "null"] },
+          "doi": { "type": ["string", "null"] },
+          "extra": { "type": "object" }
+        },
+        "required": ["id", "itemType", "title"]
+      }
+    },
+    "getAnnotations": {
+      "description": "Annotations of one item.",
+      "request": {
+        "type": "object",
+        "properties": { "source": { "$ref": "#/common/sourceParam" }, "id": { "type": "string" } },
+        "required": ["source", "id"],
+        "additionalProperties": false
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "annotations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "text": { "type": "string" },
+                "comment": { "type": ["string", "null"] },
+                "color": { "type": ["string", "null"] },
+                "page": { "type": ["integer", "null"] },
+                "type": { "type": "string", "description": "highlight | note | image" }
+              },
+              "required": ["id", "text"]
+            }
+          }
+        },
+        "required": ["annotations"]
+      }
+    },
+    "getNotes": {
+      "description": "Child notes of one item.",
+      "request": {
+        "type": "object",
+        "properties": { "source": { "$ref": "#/common/sourceParam" }, "id": { "type": "string" } },
+        "required": ["source", "id"],
+        "additionalProperties": false
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "html": { "type": "string" },
+                "text": { "type": "string" },
+                "tags": { "type": "array", "items": { "type": "string" } },
+                "dateAdded": { "type": ["string", "null"] }
+              },
+              "required": ["id", "text"]
+            }
+          }
+        },
+        "required": ["notes"]
+      }
+    },
+    "getStandaloneNote": {
+      "description": "One standalone note by id.",
+      "request": {
+        "type": "object",
+        "properties": { "source": { "$ref": "#/common/sourceParam" }, "id": { "type": "string" } },
+        "required": ["source", "id"],
+        "additionalProperties": false
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "html": { "type": "string" },
+          "text": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "dateAdded": { "type": ["string", "null"] }
+        },
+        "required": ["id", "text"]
+      }
+    },
+    "getContent": {
+      "description": "Full text with offset pagination, or note body.",
+      "request": {
+        "type": "object",
+        "properties": {
+          "source": { "$ref": "#/common/sourceParam" },
+          "id": { "type": "string" },
+          "offset": { "type": "integer", "minimum": 0, "default": 0 },
+          "limit": { "type": "integer", "minimum": 1, "description": "Max characters to return." }
+        },
+        "required": ["source", "id"],
+        "additionalProperties": false
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "kind": { "enum": ["document", "note"] },
+          "text": { "type": "string" },
+          "offset": { "type": "integer" },
+          "nextOffset": { "type": ["integer", "null"] },
+          "totalLength": { "type": "integer" },
+          "noteType": { "type": ["string", "null"] },
+          "parentId": { "type": ["string", "null"] },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "createdAt": { "type": ["string", "null"] }
+        },
+        "required": ["kind", "text", "totalLength"]
+      }
+    },
+    "listCollections": {
+      "description": "Collections, optionally children of parentId.",
+      "request": {
+        "type": "object",
+        "properties": { "source": { "$ref": "#/common/sourceParam" }, "parentId": { "type": ["string", "null"] } },
+        "required": ["source"],
+        "additionalProperties": false
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "collections": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "numItems": { "type": "integer" },
+                "hasChildren": { "type": "boolean" },
+                "parentId": { "type": ["string", "null"] }
+              },
+              "required": ["id", "name", "hasChildren"]
+            }
+          }
+        },
+        "required": ["collections"]
+      }
+    },
+    "listCollectionItems": {
+      "description": "Item summaries in one collection.",
+      "request": {
+        "type": "object",
+        "properties": { "source": { "$ref": "#/common/sourceParam" }, "containerId": { "type": "string" } },
+        "required": ["source", "containerId"],
+        "additionalProperties": false
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "items": { "type": "array", "items": { "$ref": "#/common/itemSummary" } }
+        },
+        "required": ["items"]
+      }
+    },
+    "listTags": {
+      "description": "Tags with usage counts, sorted by count desc.",
+      "request": {
+        "type": "object",
+        "properties": { "source": { "$ref": "#/common/sourceParam" } },
+        "required": ["source"],
+        "additionalProperties": false
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "tags": { "type": "array", "items": { "type": "object", "properties": { "tag": { "type": "string" }, "count": { "type": "integer" } }, "required": ["tag", "count"] } }
+        },
+        "required": ["tags"]
+      }
+    },
+    "listSavedSearches": {
+      "description": "Saved searches defined in the library.",
+      "request": {
+        "type": "object",
+        "properties": { "source": { "$ref": "#/common/sourceParam" } },
+        "required": ["source"],
+        "additionalProperties": false
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "searches": { "type": "array", "items": { "type": "object", "properties": { "id": { "type": "string" }, "name": { "type": "string" } }, "required": ["id", "name"] } }
+        },
+        "required": ["searches"]
+      }
+    },
+    "listStandaloneNotes": {
+      "description": "Standalone (top-level) notes.",
+      "request": {
+        "type": "object",
+        "properties": { "source": { "$ref": "#/common/sourceParam" } },
+        "required": ["source"],
+        "additionalProperties": false
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "notes": { "type": "array", "items": { "type": "object", "properties": { "id": { "type": "string" }, "title": { "type": "string" }, "dateModified": { "type": ["string", "null"] } }, "required": ["id", "title"] } }
+        },
+        "required": ["notes"]
+      }
+    },
+    "getCitation": {
+      "description": "Citation in the requested format.",
+      "request": {
+        "type": "object",
+        "properties": {
+          "source": { "$ref": "#/common/sourceParam" },
+          "id": { "type": "string" },
+          "format": { "enum": ["bibtex", "csljson", "formatted"] },
+          "style": { "type": ["string", "null"] }
+        },
+        "required": ["source", "id", "format"],
+        "additionalProperties": false
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "format": { "type": "string" },
+          "style": { "type": ["string", "null"] },
+          "citation": { "type": ["string", "object"] }
+        },
+        "required": ["format", "citation"]
+      }
+    },
+    "getStats": {
+      "description": "Per-source counts.",
+      "request": {
+        "type": "object",
+        "properties": { "source": { "$ref": "#/common/sourceParam" } },
+        "required": ["source"],
+        "additionalProperties": false
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "source": { "type": "string" },
+          "items": { "type": "integer" },
+          "annotations": { "type": "integer" },
+          "notes": { "type": "integer" },
+          "attachments": { "type": "integer" },
+          "indexDocs": { "type": "integer" },
+          "indexSizeBytes": { "type": ["integer", "null"] }
+        },
+        "required": ["source", "items"]
+      }
+    },
+    "search": {
+      "description": "Cross-entry search in one source. Returns id/type/relevance plus summary metadata.",
+      "request": {
+        "type": "object",
+        "properties": {
+          "source": { "$ref": "#/common/sourceParam" },
+          "targets": { "type": "array", "items": { "$ref": "#/common/target" }, "minItems": 1 },
+          "query": { "type": "string", "minLength": 1 },
+          "filters": { "$ref": "#/common/filters" },
+          "k": { "type": "integer", "minimum": 1, "maximum": 50 }
+        },
+        "required": ["source", "targets", "query"],
+        "additionalProperties": false
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                { "$ref": "#/common/itemSummary" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "source": { "type": "string" },
+                    "itemTitle": { "type": ["string", "null"], "description": "annotations: title of parent item" },
+                    "text": { "type": ["string", "null"], "description": "annotations: highlight text" },
+                    "comment": { "type": ["string", "null"] },
+                    "color": { "type": ["string", "null"] },
+                    "page": { "type": ["integer", "null"] },
+                    "noteType": { "type": ["string", "null"], "description": "notes: child | standalone" },
+                    "parentId": { "type": ["string", "null"] },
+                    "excerpt": { "type": ["string", "null"], "description": "notes: first ~200 chars" }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "required": ["results"]
+      }
+    },
+    "searchPassages": {
+      "description": "Top-k passages of one document ranked against a query.",
+      "request": {
+        "type": "object",
+        "properties": {
+          "source": { "$ref": "#/common/sourceParam" },
+          "docId": { "type": "string" },
+          "query": { "type": "string", "minLength": 1 },
+          "k": { "type": "integer", "minimum": 1, "maximum": 20 }
+        },
+        "required": ["source", "docId", "query"],
+        "additionalProperties": false
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "passages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": { "type": "string" },
+                "page": { "type": ["integer", "null"] },
+                "heading": { "type": ["string", "null"] },
+                "score": { "type": "number" }
+              },
+              "required": ["text", "score"]
+            }
+          }
+        },
+        "required": ["passages"]
+      }
+    },
+    "batchSearchPassages": {
+      "description": "searchPassages over multiple documents in one round trip.",
+      "request": {
+        "type": "object",
+        "properties": {
+          "source": { "$ref": "#/common/sourceParam" },
+          "docIds": { "type": "array", "items": { "type": "string" }, "minItems": 1, "maxItems": 100 },
+          "query": { "type": "string", "minLength": 1 },
+          "k": { "type": "integer", "minimum": 1, "maximum": 20 }
+        },
+        "required": ["source", "docIds", "query"],
+        "additionalProperties": false
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "docs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "docId": { "type": "string" },
+                "passages": { "type": "array", "items": { "type": "object", "properties": { "text": { "type": "string" }, "page": { "type": ["integer", "null"] }, "score": { "type": "number" } }, "required": ["text", "score"] } }
+              },
+              "required": ["docId", "passages"]
+            }
+          }
+        },
+        "required": ["docs"]
+      }
+    },
+    "buildIndex": {
+      "description": "Build or rebuild the index of one source. Background; poll indexStatus.",
+      "request": {
+        "type": "object",
+        "properties": { "source": { "$ref": "#/common/sourceParam" }, "force": { "type": "boolean", "default": false } },
+        "required": ["source"],
+        "additionalProperties": false
+      },
+      "response": { "type": "object", "properties": { "started": { "type": "boolean" } }, "required": ["started"] }
+    },
+    "updateIndex": {
+      "description": "Incrementally reindex the given items (called by the shell after writes).",
+      "request": {
+        "type": "object",
+        "properties": {
+          "source": { "$ref": "#/common/sourceParam" },
+          "itemKeys": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["source"],
+        "additionalProperties": false
+      },
+      "response": { "type": "object", "properties": { "updated": { "type": "integer" } }, "required": ["updated"] }
+    },
+    "indexGroupData": {
+      "description": "Create a group index from shell-fetched data (first sync).",
+      "request": {
+        "type": "object",
+        "properties": {
+          "source": { "$ref": "#/common/sourceParam" },
+          "libraryVersion": { "type": "integer" },
+          "collections": { "type": "array", "items": { "type": "object", "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "parentId": { "type": ["string", "null"] } }, "required": ["id", "name"] } },
+          "items": { "type": "array", "items": { "$ref": "#/definitions/groupItem" } }
+        },
+        "required": ["source", "items"],
+        "additionalProperties": false
+      },
+      "response": { "type": "object", "properties": { "indexed": { "type": "integer" } }, "required": ["indexed"] }
+    },
+    "syncGroupIndex": {
+      "description": "Incremental group index update with items changed since libraryVersion.",
+      "request": { "$ref": "#/methods/indexGroupData/request" },
+      "response": { "type": "object", "properties": { "indexed": { "type": "integer" }, "deleted": { "type": "integer" } }, "required": ["indexed"] }
+    },
+    "deleteGroupIndex": {
+      "description": "Drop a group index.",
+      "request": {
+        "type": "object",
+        "properties": { "source": { "$ref": "#/common/sourceParam" } },
+        "required": ["source"],
+        "additionalProperties": false
+      },
+      "response": { "type": "object", "properties": { "deleted": { "type": "boolean" } }, "required": ["deleted"] }
+    },
+    "indexStatus": {
+      "description": "Index state of one source.",
+      "request": {
+        "type": "object",
+        "properties": { "source": { "$ref": "#/common/sourceParam" } },
+        "required": ["source"],
+        "additionalProperties": false
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "source": { "type": "string" },
+          "status": { "enum": ["ready", "building", "missing", "error"] },
+          "docs": { "type": ["integer", "null"] },
+          "message": { "type": ["string", "null"] }
+        },
+        "required": ["source", "status"]
+      }
+    }
+  },
+  "definitions": {
+    "groupItem": {
+      "type": "object",
+      "description": "Normalized item handed from the shell to the core for group indexing.",
+      "properties": {
+        "key": { "type": "string" },
+        "parentKey": { "type": ["string", "null"] },
+        "itemType": { "type": "string" },
+        "title": { "type": ["string", "null"] },
+        "abstractNote": { "type": ["string", "null"] },
+        "creators": { "type": "array", "items": { "type": "object" } },
+        "date": { "type": ["string", "null"] },
+        "year": { "type": ["integer", "null"] },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "collections": { "type": "array", "items": { "type": "string" } },
+        "noteHtml": { "type": ["string", "null"] },
+        "annotation": {
+          "type": ["object", "null"],
+          "properties": {
+            "text": { "type": "string" },
+            "comment": { "type": ["string", "null"] },
+            "color": { "type": ["string", "null"] },
+            "page": { "type": ["integer", "null"] }
+          }
+        },
+        "attachment": {
+          "type": ["object", "null"],
+          "description": "Present on attachment items. localPath points at a file the core can read directly (Zotero storage cache or shell download cache).",
+          "properties": {
+            "key": { "type": "string" },
+            "contentType": { "type": ["string", "null"] },
+            "localPath": { "type": ["string", "null"] }
+          }
+        },
+        "deleted": { "type": "boolean", "default": false, "description": "syncGroupIndex only: trashed/deleted item." }
+      },
+      "required": ["key", "itemType"]
+    }
+  }
+}

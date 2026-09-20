@@ -1,0 +1,76 @@
+{
+  "name": "search",
+  "title": "Search library",
+  "description": "Cross-entry search across the library. Searches items (papers/books), annotations (highlights with your comments), and notes. Returns snippets by default. Use filters to narrow scope; use depth=full only when snippets are not enough.",
+  "inputSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "query": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Search query. Plain keywords or phrases."
+      },
+      "target": {
+        "description": "Search target(s). Default: items.",
+        "anyOf": [
+          { "enum": ["items", "annotations", "notes"] },
+          {
+            "type": "array",
+            "items": { "enum": ["items", "annotations", "notes"] },
+            "minItems": 1,
+            "maxItems": 3
+          }
+        ],
+        "default": "items"
+      },
+      "depth": {
+        "enum": ["ids", "snippets", "full"],
+        "default": "snippets",
+        "description": "ids: metadata only. snippets: matching passages per result (default). full: full text of each result, truncated to the token budget."
+      },
+      "snippetsPerResult": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 10,
+        "default": 3,
+        "description": "Number of passages per result when depth=snippets."
+      },
+      "filters": {
+        "type": "object",
+        "properties": {
+          "containerId": { "type": "string", "description": "Collection id to search within." },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "yearFrom": { "type": "integer" },
+          "yearTo": { "type": "integer" },
+          "itemType": { "type": "string" },
+          "authors": { "type": "array", "items": { "type": "string" } },
+          "colors": {
+            "type": "array",
+            "items": { "enum": ["red", "orange", "yellow", "green", "blue", "purple", "magenta", "gray"] },
+            "description": "Annotation highlight colors. Only applies to target=annotations."
+          },
+          "titleContains": { "type": "string" }
+        },
+        "additionalProperties": false,
+        "description": "Filters not applicable to a target are silently ignored."
+      },
+      "k": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 50,
+        "default": 10,
+        "description": "Max results per target."
+      },
+      "max_tokens": {
+        "type": "integer",
+        "minimum": 200,
+        "maximum": 50000,
+        "default": 4000,
+        "description": "Token budget for the response."
+      }
+    },
+    "required": ["query"],
+    "additionalProperties": false
+  }
+}

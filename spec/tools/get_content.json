@@ -1,0 +1,45 @@
+{
+  "name": "get_content",
+  "title": "Get item content",
+  "description": "Read the body of one entry. mode=passages returns the passages best matching an optional query (query required for documents in this mode); mode=fulltext returns the text with offset pagination. For notes, returns the note body.",
+  "inputSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Global ID of an item, attachment, or note."
+      },
+      "mode": {
+        "enum": ["passages", "fulltext"],
+        "default": "passages"
+      },
+      "query": {
+        "type": "string",
+        "description": "Required when mode=passages on a document: passages are ranked against it."
+      },
+      "k": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 20,
+        "default": 5,
+        "description": "Number of passages when mode=passages."
+      },
+      "offset": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 0,
+        "description": "Character offset when mode=fulltext. Use nextOffset from the previous call to page through."
+      },
+      "max_tokens": {
+        "type": "integer",
+        "minimum": 200,
+        "maximum": 50000,
+        "default": 4000
+      }
+    },
+    "required": ["id"],
+    "additionalProperties": false
+  }
+}

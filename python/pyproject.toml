@@ -1,0 +1,27 @@
+[project]
+name = "docsagent-mcp-zotero"
+version = "4.0.0"
+description = "DocsAgent MCP shell for Zotero (Python) — spec-driven MCP server over a resident C++ search core"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Vincent" }]
+keywords = ["mcp", "zotero", "reference-manager", "papers", "local-first"]
+classifiers = ["Programming Language :: Python :: 3"]
+dependencies = [
+  "mcp>=2.2,<2.3",
+  "jsonschema>=4.18",
+]
+
+[project.scripts]
+docsagent-mcp-zotero = "docsagent_mcp.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["docsagent_mcp*"]
+
+[tool.setuptools.package-data]
+docsagent_mcp = ["spec/tools/*.json", "spec/*.json", "bin/*"]

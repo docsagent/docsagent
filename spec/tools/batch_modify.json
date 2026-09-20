@@ -1,0 +1,48 @@
+{
+  "name": "batch_modify",
+  "title": "Batch modify",
+  "description": "Batch-modify collection membership or tags of up to 200 items. Per the write safety gate every call needs confirmed=true (confirmed=false returns a preview of what would change); changes affecting more than 20 items additionally must be explicitly confirmed.",
+  "inputSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "action": {
+        "enum": ["add_to_collection", "remove_from_collection", "add_tags", "remove_tags"]
+      },
+      "ids": {
+        "type": "array",
+        "items": { "type": "string", "minLength": 1 },
+        "minItems": 1,
+        "maxItems": 200,
+        "description": "Global IDs of the items to modify."
+      },
+      "containerId": {
+        "type": "string",
+        "description": "Required for add_to_collection / remove_from_collection."
+      },
+      "tags": {
+        "type": "array",
+        "items": { "type": "string", "minLength": 1 },
+        "minItems": 1,
+        "description": "Required for add_tags / remove_tags."
+      },
+      "confirmed": {
+        "type": "boolean",
+        "default": false,
+        "description": "Must be true to perform the write."
+      }
+    },
+    "required": ["action", "ids"],
+    "additionalProperties": false,
+    "allOf": [
+      {
+        "if": { "properties": { "action": { "enum": ["add_to_collection", "remove_from_collection"] } } },
+        "then": { "required": ["containerId"] }
+      },
+      {
+        "if": { "properties": { "action": { "enum": ["add_tags", "remove_tags"] } } },
+        "then": { "required": ["tags"] }
+      }
+    ]
+  }
+}

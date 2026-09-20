@@ -1,0 +1,32 @@
+{
+  "name": "add_note",
+  "title": "Add note",
+  "description": "Add a child note (Markdown, converted to Zotero HTML) to an existing item. Two-step confirm: confirmed=false (default) returns a preview; confirmed=true writes the note.",
+  "inputSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Global ID of the parent item."
+      },
+      "content": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Note body in Markdown. Converted to Zotero note HTML."
+      },
+      "tags": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "confirmed": {
+        "type": "boolean",
+        "default": false,
+        "description": "Must be true to perform the write. confirmed=false returns a preview."
+      }
+    },
+    "required": ["id", "content"],
+    "additionalProperties": false
+  }
+}

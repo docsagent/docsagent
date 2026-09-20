@@ -1,179 +1,212 @@
-# DocsAgent 🛡️
+# DocsAgent MCP — Zotero MCP Server 📚⚡
 
-**The High-Performance Local Intelligence Layer for AI Agents.**
+**`@docsagent/mcp-zotero`** is a spec-driven **MCP (Model Context Protocol) server** that lets any
+AI agent — Claude Desktop, Cursor, Cline, Qwen Code, or any MCP client — search, read, and write
+your **Zotero** library through a resident **C++ search engine**. Local-first RAG infrastructure
+for your papers: BM25 full-text search + query-ranked passage retrieval over **1,000+ PDFs** with
+**~15 ms** average retrieval latency.
 
-DocsAgent is a professional, local-first documents intelligence engine and MCP (Model Context Protocol) server. It provides a secure, near-instant bridge between your private local files and advanced agentic platforms like **OpenClaw**, **Claude Code**, and **Cursor**.
+- 🔒 **Local-first & private** — the engine reads `zotero.sqlite` and `storage/` directly on your
+  machine. Your PDFs never leave it.
+- ⚡ **Native C++ search core** — inverted-index BM25 + passage ranking, millisecond lookup,
+  low memory footprint (160–227 MB for a 1,500-paper library).
+- 🧩 **8 MCP tools** — 5 read + 3 write, with JSON-schema validated arguments, token budgets,
+  result dedup, and a three-layer write safety gate.
+- 🌐 **Two transports** — stdio for local MCP clients, Streamable HTTP for remote deployment
+  (origin checks, API-key / OAuth 2.0 token introspection, per-request RBAC, `/health` probe).
+- 🐍 **Two shells, one core** — this TypeScript package and a feature-equal
+  [Python wrapper](python/) ship the same tools over the same JSON-RPC contract.
 
-**100% Local. 100% Private. Zero Data Leakage.**
-### 🎓 Zotero Integration: papersgpt-for-zotero
-**papersgpt-for-zotero** is an MCP server built on DocsAgent that enables AI agents to connect and search papers in your Zotero library.
+---
 
-To configure it, add the following to your MCP settings. 
+## Architecture
+
+```
+MCP Client (Claude Desktop / Cursor / Cline / Qwen Code / any MCP host)
+        │  stdio (local)   or   Streamable HTTP  /mcp  (remote)
+        ▼
+MCP shell  ← this package (@docsagent/mcp-zotero / docsagent-mcp-zotero)
+   · tool schemas (spec-driven), argument validation, token budget, dedup
+   · write orchestration via the Zotero local API, write safety gate, RBAC
+   · group-library sync via the Zotero Web API
+        │  JSON-RPC 2.0 over HTTP ({coreHost}:{httpPort}/rpc, cpp-httplib)
+        ▼
+DocsAgent Core (resident C++ engine, papersgpt-agent)
+   · reads ~/Zotero/zotero.sqlite + storage/ directly on your machine
+   · builds & serves the full-text index (BM25 + passage ranking)
+```
+
+The shell **never spawns the core** during tool calls and never touches your Zotero files.
+The core runs as a background service and stays available across MCP client restarts.
+Full design: [DESIGN.md](DESIGN.md). Tool schemas and error codes: [spec/](spec/).
+
+---
+
+## Quick Start
+
+### 1. Start the core
+
+```bash
+npx @docsagent/mcp-zotero start           # spawn the bundled core for your platform
+npx @docsagent/mcp-zotero status          # pid / endpoint / version
+```
+
+Python shell (same verbs, under the `core` subcommand):
+
+```bash
+pip install ./python                      # build the wheel locally (PyPI upload pending)
+docsagent-mcp-zotero core start
+```
+
+(`core stop` / `core restart` also available. The core reads your Zotero data directory,
+builds the full-text index, and serves JSON-RPC on `http://0.0.0.0:23120/rpc`.)
+
+### 2. Configure your MCP client
+
+Claude Desktop / Cursor / Cline / Qwen Code (`mcpServers`):
 
 ```json
 {
   "mcpServers": {
-    "papersgpt-for-zotero": {
+    "docsagent-zotero": {
       "command": "npx",
-      "args": [
-        "-y",
-        "papersgpt-for-zotero",
-        "mcp",
-      ]
+      "args": ["-y", "@docsagent/mcp-zotero"]
     }
   }
 }
 ```
-**Note:** If your Zotero data storage path is not the default (~/Zotero or ~\Zotero), then you will need to modify the `args` value to include your real Zotero data storage path behind the "mcp".
 
-### 🎓 Obsidian Integration: docsagent-for-obsidian
-**docsagent-for-obsidian** is an MCP server built on DocsAgent that enables AI agents to connect and search personal notes in your Obsidian.
+Python distribution channel (same tools, same contract, installed from this repo):
 
-To configure it, add the following to your MCP settings. 
-
-```json
-{
-  "mcpServers": {
-    "docsagent-for-obsidian": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "docsagent-for-obsidian",
-        "mcp",
-      ]
-    }
-  }
-}
-```
-**Note:** If your Obsidian data storage path is not the default (~/Documents/Obsidian Vault or ~\\Documents\\Obsidian Vault), then you will need to modify the `args` value to include your real obsidian data storage path behind the "mcp".
----
-
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![OS: macOS / Windows / Linux](https://img.shields.io/badge/OS-macOS%20|%20Windows%20|%20Linux-black.svg)](#)
-
----
-
-### 🔥 Why DocsAgent?
-
-Modern AI Agents are incredibly smart, but they are "blind" to your private desktop documents. DocsAgent acts as a **High-Performance Intelligence Engine** that indexes your local data, allowing agents to search, read, and analyze thousands of files (1,000+) with absolute privacy.
-
-*   **🔒 Absolute Privacy:** All document parsing, indexing, and vector storage happen strictly on your own hardware. Your data never leaves your machine.
-*   **⚡ High-Performance Core:** Powered by a native C++ engine. Experience millisecond-level retrieval even across massive document libraries.
-*   **🔌 MCP Native:** Built-in support for the **Model Context Protocol (MCP)**, making it instantly compatible with the latest AI tools.
-*   **📂 Format Mastery:** Native parsing for PDF, Word (.docx), PPTX.  
-
----
-
-### 🚀 Quick Start
-
-### 📄 SKILL.md
-This file provides detailed instructions and guidelines for using the DocsAgent skill, including its purpose, features, and usage examples. [SKILL.md](SKILL.md)
-
----
-
-#### 1. Install via NPM
 ```bash
-npm install -g @docsagent/docsagent
+pip install ./python                       # wheel ships all-platform core binaries
+docsagent-mcp-zotero core start            # same lifecycle CLI as the JS shell
+docsagent-mcp-zotero                       # stdio MCP server
 ```
 
-#### 2. CLI Usage (Local Indexing & Search)
-DocsAgent provides a powerful CLI for managing your local knowledge base.
-
-*   **Index your folders:**
-    ```bash
-    # Add one or more directories or files to the index
-    docsagent add ~/Documents/Legal_Archive ~/Documents/Research
-    ```
-*   **Search your documents:**
-    ```bash
-    # Perform a semantic search directly from the terminal
-    docsagent search "What are the key terms in the Barclays contract?"
-    ```
-
-#### 3. MCP Usage (Connect to AI Agents)
-DocsAgent is a native **Model Context Protocol (MCP)** server. This allows AI agents to "see" your local documents.
-
-**Start the MCP server:**
-```bash
-docsagent server
-```
+On startup the shell connects to the core, loads sources, and checks index status. If the
+core is not running it fails fast with startup instructions — it never spawns anything.
 
 ---
 
-### 🔌 Agent Integration Examples
+## MCP Tools (external API)
 
-Connect DocsAgent to your favorite tools using the following configurations:
+8 tools, 5 read + 3 write. Schemas are the single-sourced contract in
+[`spec/tools/*.json`](spec/tools) (mirrored into both packages); arguments are validated
+before handlers run and failures map to typed docsagent error codes.
 
-#### **OpenClaw (Recommended)**
-OpenClaw is the most powerful UI for local-first agents. Add DocsAgent in your `config.yaml`:
-```yaml
-mcpServers:
-  docsagent:
-    command: "docsagent"
-    args: ["server"]
-```
+### `list_sources`
+Every searchable source with capabilities, supported targets/includes/browse modes,
+filters, and document counts. **Call this first.**
 
-#### **Claude Code**
-Integrate with Anthropic's CLI tool:
-```bash
-claude code mcp add docsagent -- docsagent server
-```
+### `search`
+Cross-entry search over the whole library.
 
-#### **Cursor / Windsurf**
-1. Open **Settings** > **Features** > **MCP Servers**.
-2. Click **+ Add New MCP Server**.
-3. Name: `DocsAgent`
-4. Type: `command`
-5. Command: `docsagent server`
+| Parameter | Type | Notes |
+|---|---|---|
+| `query` | string, required | plain keywords or phrases |
+| `target` | `"items" \| "annotations" \| "notes"` or array | default `items` |
+| `depth` | `ids` \| `snippets` \| `full` | snippets by default (BM25-ranked passages) |
+| `filters` | object | `tags`, `yearFrom`/`yearTo`, `itemType`, `authors`, `colors`, `containerId`, `titleContains` |
+| `k`, `snippetsPerResult`, `max_tokens` | numbers | ranking depth and token budget |
 
----
+Returns `results[]` with global ids (`zotero:KEY`), titles, relevance, snippets; multi-target
+searches group by target. Results are deduped (id, then normalized title + year) and packed
+under a token budget.
 
-### 🛠️ Agent Tools (via MCP)
+### `get_content`
+Read one entry. `mode=passages` (query-ranked passages, `k`) or `mode=fulltext`
+(offset pagination with `nextOffset`). Notes return their body with tags and metadata.
 
-Once integrated, your AI agent gains professional-grade document capabilities through these tools:
+### `get_metadata`
+`include`: `metadata`, `abstract`, `annotations`, `notes`, `citation` (bibtex / csljson /
+formatted via `citationFormat`/`citationStyle`). Notes are packed under the token budget.
 
-- **`search`**: Perform deep semantic search across your entire local library to find relevant snippets.
-- **`add_docs`**: Instantly index new local folders or files during a conversation.
-- *(More tools coming soon: `list_documents`, `remove_document`, `status`)*
+### `list_library`
+Browse modes: `collections` (drill-down via `parentId`), `items` (by `containerId`),
+`tags`, `saved_searches`, `standalone_notes`.
 
----
+### Write tools (three-layer safety gate)
 
-### 💻 CLI Reference
+| Tool | What it does | Key arguments |
+|---|---|---|
+| `import_item` | Import local PDFs or resolve DOI / ISBN / arXiv IDs (via the Zotero translation server); optional `autoClassify` suggests collections | `paths` \| `identifiers`, `containerId`, `autoClassify`, `confirmed` |
+| `add_note` | Add a Markdown child note to an item (converted to Zotero note HTML), with orphan verification and rollback | `id`, `content`, `tags`, `confirmed` |
+| `batch_modify` | Bulk `add_to_collection` / `remove_from_collection` / `add_tags` / `remove_tags` on up to 200 items in batches of 50 | `action`, `ids`, `containerId`, `tags`, `confirmed` |
 
-DocsAgent provides a powerful CLI with convenient aliases (`dag`, `da`):
-
-| Command | Alias Example | Description |
-| :--- | :--- | :--- |
-| `server` | `da server` | Start the MCP server service |
-| `add` | `dag add <path>` | Add directories or files to the index |
-| `search` | `da search "query"`| Search for documents directly from CLI |
-| `status`| `dag status` | Check engine and indexing status |
-| `stop`  | `da stop` | Stop the background engine service |
-
----
-
-### 📂 Support Matrix
-
-| Format | Status | Features |
-| :--- | :--- | :--- |
-| **PDF** | ✅ Full | Deep layout analysis & high-speed parsing |
-| **Word (.docx)** | ✅ Full | Table extraction & heading hierarchy preserved |
-| **PPTX** | ✅ Full | Extracts slides, shapes, and speaker notes |
+Write safety gate (spec/algorithms/write-gate.md): **layer 1** write tools are not
+registered unless `enableWrites=true`; **layer 2** `confirmed=false` returns a preview and
+consumes no rate-limit quota; **layer 3** confirmed writes consume a per-hour rate limit
+(default 30/h). Anything above 20 items in `batch_modify` additionally reports
+`requiresConfirmation` in the preview.
 
 ---
 
-### 🤝 Community & Contributing
+## Engine performance
 
-We are building the open standard for Local RAG. Join us in making AI respect personal data sovereignty!
+The C++ engine powers [PapersGPT](https://www.papersgpt.com/zh) — the same index and
+retrieval stack ships in this MCP server. Benchmark on a real Zotero installation
+([full write-up](https://www.papersgpt.com/zh/blogs/papersgpt-search-performance-benchmark)):
 
-- **GitHub Issues:** Found a bug? Have a feature request? Open an issue.
-- **Star the Repo:** If DocsAgent improved your workflow, please give us a ⭐ to help others find the project!
+| Metric | Mac (Intel i9) | Windows VM (4C8G) |
+|---|---|---|
+| Library size | 1,506 PDFs (4.5 GB on disk) | 500+ PDFs |
+| **Index build time** | **141 s** | a few seconds |
+| **Memory (agent process)** | **227 MB** | **160 MB** |
+| **Average retrieval latency** | **~15 ms** | **~15 ms** |
+
+- Indexing cost scales roughly **linearly** with library size; retrieval latency stays
+  **constant** — a 10,000-paper library (~30 GB) indexes in about 15–20 minutes, and
+  everyday search stays at **~15 ms**.
+- For comparison: a typical web page load takes 1,000–3,000 ms; a blink of an eye is
+  100–150 ms. PapersGPT answers in ~15 ms, fully offline.
+- Privacy: your library never leaves your machine.
+
+## Configuration
+
+Config lives at `~/.docsagent/config.json` (or `$DOCSAGENT_CONFIG`) — one file shared by
+the JS shell, the Python wrapper, and the C++ core. Validated against
+[`spec/config.json`](spec/config.json).
+
+| Key | Default | Description |
+|---|---|---|
+| `coreHost` | `0.0.0.0` | Address the core binds and the shell dials |
+| `httpPort` | `23120` | Core HTTP port (`POST /rpc`) |
+| `coreBinary` | `""` | Optional explicit path to the core binary |
+| `zoteroDataDir` | `~/Zotero` | Zotero data directory |
+| `zoteroApiUrl` | `http://localhost:23119/api` | Zotero local API (write orchestration) |
+| `zoteroGroups` | `[]` | Group libraries to sync from zotero.org |
+| `enableWrites` | `false` | Register the three write tools |
+| `writeRateLimitPerHour` | `30` | Confirmed-write rate limit |
+| `maxTokensPerTool` | `4000` | Token budget per tool result |
+| `defaultSource` | `zotero` | Source used when an id omits the prefix |
+| `transport` | `stdio` | `stdio` or `streamable-http` |
+| `httpListenAddr` | `0.0.0.0:8080` | Listen address for streamable-http (`/mcp`) |
+| `authMode` / `authConfig` | `none` | `api-key` or `oauth2` (RFC 7662) + `allowedOrigins` |
+| `rbacRoles` | `{}` | role → allowed tool names (per-request RBAC on HTTP) |
+| `logLevel` | `info` | `debug` / `info` / `warn` / `error` |
 
 ---
 
-### ⚖️ License
+## Distribution
 
-DocsAgent is open-source under the **Apache-2.0 License**.
+| Channel | Package | Bundled core | Size |
+|---|---|---|---|
+| npm (JS/TS shell) | `@docsagent/mcp-zotero` | all platforms in `bin/` | ~70 MB tarball |
+| PyPI (Python shell) | `docsagent-mcp-zotero` (`pip install ./python`) | same binaries in the wheel | ~65 MB wheel |
 
----
-**Desktop Sovereignty is here. Empower your Agents with DocsAgent.**
+Both shells read the same config and talk to the same core — pick either (or both) as
+your MCP distribution channel. Core lifecycle (`start` / `stop` / `restart` / `status`)
+is available from both CLIs.
+
+## Links
+
+- [DESIGN.md](DESIGN.md) — full architecture and algorithms
+- [spec/](spec/) — the single-sourced contract: 8 tool schemas, 23 JSON-RPC methods,
+  error codes + suggested calls, config schema
+- [PapersGPT search performance benchmark](https://www.papersgpt.com/zh/blogs/papersgpt-search-performance-benchmark)
+- [Zotero](https://www.zotero.org/) · [Model Context Protocol](https://modelcontextprotocol.io)
+
+## License
+
+Apache-2.0

@@ -1,0 +1,6 @@
+docsagent_mcp/bin/
+dist/
+.venv/
+**/__pycache__/
+*.egg-info/
+docsagent_mcp/spec/

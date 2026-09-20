@@ -1,0 +1,42 @@
+{
+  "name": "import_item",
+  "title": "Import item",
+  "description": "Import new entries into the personal library, either from local PDF files or from identifiers (DOI / ISBN / arXiv ID). Always runs as a two-step confirm: the first call (confirmed=false, default) returns a metadata preview plus suggested collections; re-call with confirmed=true to actually write. paths and identifiers are mutually exclusive.",
+  "inputSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "paths": {
+        "type": "array",
+        "items": { "type": "string" },
+        "maxItems": 50,
+        "description": "Absolute paths of local PDF files to import."
+      },
+      "identifiers": {
+        "type": "array",
+        "items": { "type": "string" },
+        "maxItems": 50,
+        "description": "DOI, ISBN, or arXiv IDs, e.g. \"10.1234/foo\", \"arXiv:2401.12345\"."
+      },
+      "containerId": {
+        "type": "string",
+        "description": "Collection to add the imported items to."
+      },
+      "autoClassify": {
+        "type": "boolean",
+        "default": false,
+        "description": "When true, the preview includes suggestedCollections based on keyword overlap with existing collections."
+      },
+      "confirmed": {
+        "type": "boolean",
+        "default": false,
+        "description": "Must be true to perform the write. false returns a preview only."
+      }
+    },
+    "additionalProperties": false,
+    "oneOf": [
+      { "required": ["paths"] },
+      { "required": ["identifiers"] }
+    ]
+  }
+}
