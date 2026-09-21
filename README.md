@@ -88,14 +88,7 @@ Python shell (same tools, same contract, installed from this repo) — `mcpServe
 }
 ```
 
-Install first (the wheel ships all-platform core binaries); the lifecycle CLI is shared
-with the JS shell:
-
-```bash
-pip install ./python
-docsagent-mcp-zotero core start            # start / stop / restart / status
-docsagent-mcp-zotero                       # stdio MCP server (what the client runs)
-```
+Install the Python package first (step 1) so `docsagent-mcp-zotero` is on your PATH.
 
 On startup the shell connects to the core, loads sources, and checks index status. If the
 core is not running it fails fast with startup instructions — it never spawns anything.
