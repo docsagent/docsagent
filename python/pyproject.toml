@@ -1,12 +1,12 @@
 [project]
 name = "docsagent-mcp-zotero"
 version = "4.0.0"
-description = "DocsAgent MCP shell for Zotero (Python) — spec-driven MCP server over a resident C++ search core"
+description = "DocsAgent - give AI agents instant, private access to your personal knowledge base. Zotero MCP server (Python) over a resident native C++ search engine."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
 authors = [{ name = "Vincent" }]
-keywords = ["mcp", "zotero", "model-context-protocol", "claude", "cursor", "rag", "pdf", "semantic-search", "reference-manager", "research", "local-first", "ai-agent"]
+keywords = ["mcp", "model-context-protocol", "mcp-server", "ai-agents", "local-ai", "llm", "claude", "cursor", "zotero", "semantic-search", "full-text-search", "bm25", "pdf-search", "knowledge-base", "local-first", "rag", "reference-manager", "research"]
 classifiers = ["Programming Language :: Python :: 3"]
 dependencies = [
   "mcp>=2.2,<2.3",

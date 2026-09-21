@@ -1,12 +1,13 @@
 # DocsAgent MCP — Zotero MCP Server 📚⚡
 
-**`@docsagent/mcp-zotero`** is a spec-driven **MCP (Model Context Protocol) server** that lets any
-AI agent — Claude Desktop, Cursor, Cline, Qwen Code, or any MCP client — search, read, and write
-your **Zotero** library through a resident **C++ search engine**. Local-first RAG infrastructure
-for your papers: BM25 full-text search + query-ranked passage retrieval over **1,000+ PDFs** with
-**~15 ms** average retrieval latency.
+**DocsAgent gives AI agents instant, private access to your personal knowledge base.**
+**`@docsagent/mcp-zotero`** is the spec-driven **MCP (Model Context Protocol) server** (Zotero is
+the first supported source) that lets any AI agent — Claude Desktop, Cursor, Cline, Qwen Code, or
+any MCP client — search, read, and write your **Zotero** library through a resident **C++ search
+engine**. BM25 full-text search + query-ranked passage retrieval over **1,000+ PDFs** at
+**~15 ms**, fully local (RAG-ready knowledge base).
 
-- 🔒 **Local-first & private** — the engine reads `zotero.sqlite` and `storage/` directly on your
+- 🔒 **Local-first & private** — the engine reads your Zotero library directly on your
   machine. Your PDFs never leave it.
 - ⚡ **Native C++ search core** — inverted-index BM25 + passage ranking, millisecond lookup,
   low memory footprint (160–227 MB for a 1,500-paper library).
