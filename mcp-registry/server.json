@@ -1,0 +1,48 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "name": "io.github.docsagent/zotero",
+  "display_name": "DocsAgent — Zotero MCP Server",
+  "description": "MCP server that lets AI agents (Claude Desktop, Cursor, Cline, Qwen Code) search, read, and write a local Zotero library through a resident native C++ search engine. Full-text BM25 search, query-ranked passage retrieval, metadata/citations, and gated write tools (import by DOI/arXiv, notes, batch modify) — all local-first: the library never leaves the machine.",
+  "version": "4.0.0",
+  "created_at": "2026-09-21T00:00:00Z",
+  "updated_at": "2026-09-21T00:00:00Z",
+  "website_url": "https://github.com/docsagent/docsagent",
+  "repository": {
+    "url": "https://github.com/docsagent/docsagent",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registry_type": "npm",
+      "identifier": "@docsagent/mcp-zotero",
+      "version": "4.0.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environment_variables": [
+        {
+          "name": "DOCSAGENT_CONFIG",
+          "description": "Path to the shared docsagent config file (default: ~/.docsagent/config.json)",
+          "format": "filepath",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "registry_type": "pypi",
+      "identifier": "docsagent-mcp-zotero",
+      "version": "4.0.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environment_variables": [
+        {
+          "name": "DOCSAGENT_CONFIG",
+          "description": "Path to the shared docsagent config file (default: ~/.docsagent/config.json)",
+          "format": "filepath",
+          "is_required": false
+        }
+      ]
+    }
+  ]
+}

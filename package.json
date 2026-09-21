@@ -1,7 +1,7 @@
 {
   "name": "@docsagent/mcp-zotero",
   "version": "4.0.0",
-  "description": "DocsAgent MCP shell for Zotero \u2014 spec-driven MCP server over a resident C++ search core (stdio + Streamable HTTP)",
+  "description": "DocsAgent MCP shell for Zotero — spec-driven MCP server over a resident C++ search core (stdio + Streamable HTTP)",
   "type": "module",
   "main": "dist/cli.js",
   "bin": {
@@ -21,12 +21,22 @@
     "postinstall": "node scripts/install.mjs"
   },
   "keywords": [
-    "mcp",
-    "zotero",
-    "reference-manager",
-    "papers",
+    "ai-agent",
+    "bm25",
+    "claude",
+    "cursor",
+    "full-text-search",
     "local-first",
-    "model-context-protocol"
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "papers",
+    "pdf-search",
+    "rag",
+    "reference-manager",
+    "research",
+    "zotero",
+    "zotero-plugin"
   ],
   "author": "Vincent",
   "license": "Apache-2.0",
@@ -48,5 +58,8 @@
   "devDependencies": {
     "tsup": "^8.0.0",
     "typescript": "^5.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/docsagent/docsagent/issues"
   }
 }

@@ -1,0 +1,26 @@
+# Smithery configuration for @docsagent/mcp-zotero (https://smithery.ai)
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    title: DocsAgent Zotero MCP Server
+    description: Search, read, and write a local Zotero library through a resident
+      C++ search engine. The core must be running (docsagent-mcp-zotero core start
+      or the JS CLI equivalent).
+    properties:
+      zoteroDataDir:
+        type: string
+        title: Zotero data directory
+        description: Path to the Zotero data directory the engine indexes.
+        default: ~/Zotero
+      enableWrites:
+        type: boolean
+        title: Enable write tools
+        description: Register the write tools (import_item, add_note, batch_modify).
+        default: false
+  commandFunction: |-
+    (config) => ({
+      "command": "npx",
+      "args": ["-y", "@docsagent/mcp-zotero"],
+      "env": config.zoteroDataDir ? { "DOCSAGENT_ZOTERO_DATA_DIR": config.zoteroDataDir } : {}
+    })

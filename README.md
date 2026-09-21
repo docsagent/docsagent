@@ -38,7 +38,7 @@ DocsAgent Core (resident C++ engine, papersgpt-agent)
 
 The shell **never spawns the core** during tool calls and never touches your Zotero files.
 The core runs as a background service and stays available across MCP client restarts.
-Full design: [DESIGN.md](DESIGN.md). Tool schemas and error codes: [spec/](spec/).
+Tool schemas and error codes: [spec/](spec/).
 
 ---
 
@@ -76,12 +76,25 @@ Claude Desktop / Cursor / Cline / Qwen Code (`mcpServers`):
 }
 ```
 
-Python distribution channel (same tools, same contract, installed from this repo):
+Python shell (same tools, same contract, installed from this repo) — `mcpServers`:
+
+```json
+{
+  "mcpServers": {
+    "docsagent-zotero-py": {
+      "command": "docsagent-mcp-zotero"
+    }
+  }
+}
+```
+
+Install first (the wheel ships all-platform core binaries); the lifecycle CLI is shared
+with the JS shell:
 
 ```bash
-pip install ./python                       # wheel ships all-platform core binaries
-docsagent-mcp-zotero core start            # same lifecycle CLI as the JS shell
-docsagent-mcp-zotero                       # stdio MCP server
+pip install ./python
+docsagent-mcp-zotero core start            # start / stop / restart / status
+docsagent-mcp-zotero                       # stdio MCP server (what the client runs)
 ```
 
 On startup the shell connects to the core, loads sources, and checks index status. If the
@@ -201,7 +214,6 @@ is available from both CLIs.
 
 ## Links
 
-- [DESIGN.md](DESIGN.md) — full architecture and algorithms
 - [spec/](spec/) — the single-sourced contract: 8 tool schemas, 23 JSON-RPC methods,
   error codes + suggested calls, config schema
 - [PapersGPT search performance benchmark](https://www.papersgpt.com/zh/blogs/papersgpt-search-performance-benchmark)

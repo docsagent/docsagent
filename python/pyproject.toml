@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
 authors = [{ name = "Vincent" }]
-keywords = ["mcp", "zotero", "reference-manager", "papers", "local-first"]
+keywords = ["mcp", "zotero", "model-context-protocol", "claude", "cursor", "rag", "pdf", "semantic-search", "reference-manager", "research", "local-first", "ai-agent"]
 classifiers = ["Programming Language :: Python :: 3"]
 dependencies = [
   "mcp>=2.2,<2.3",
@@ -15,6 +15,11 @@ dependencies = [
 
 [project.scripts]
 docsagent-mcp-zotero = "docsagent_mcp.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/docsagent/docsagent"
+Repository = "https://github.com/docsagent/docsagent"
+Issues = "https://github.com/docsagent/docsagent/issues"
 
 [build-system]
 requires = ["setuptools>=68"]
