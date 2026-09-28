@@ -1,14 +1,16 @@
-# DocsAgent MCP — Zotero MCP Server 📚⚡
+# DocsAgent MCP — Zotero, Obsidian & Apple Notes for AI agents 📚⚡
 
 **DocsAgent gives AI agents instant, private access to your personal knowledge base.**
-**`@docsagent/mcp-zotero`** is the spec-driven **MCP (Model Context Protocol) server** (Zotero is
-the first supported source) that lets any AI agent — Claude Desktop, Cursor, Cline, Qwen Code, or
-any MCP client — search, read, and write your **Zotero** library through a resident **C++ search
-engine**. BM25 full-text search + query-ranked passage retrieval over **1,000+ PDFs** at
-**~15 ms**, fully local (RAG-ready knowledge base).
+**`@docsagent/mcp-zotero`** is the spec-driven **MCP (Model Context Protocol) server** that lets
+any AI agent — Claude Desktop, Cursor, Cline, Qwen Code, or any MCP client — search, read, and
+write your **Zotero** library, **Obsidian** vault, and **Apple Notes** (macOS) through a resident
+**C++ search engine**. BM25 full-text search + query-ranked passage retrieval over **1,000+ PDFs**
+at **~15 ms**, fully local (RAG-ready knowledge base).
 
-- 🔒 **Local-first & private** — the engine reads your Zotero library directly on your
-  machine. Your PDFs never leave it.
+- 🔒 **Local-first & private** — the engine reads your Zotero library, Obsidian vault, and
+  Apple Notes store directly on your machine. Your notes and PDFs never leave it.
+- 🗂 **Three sources, one query** — Zotero items/annotations/notes, Obsidian vaults, and
+  Apple Notes (macOS only); mixed search fuses all three by reciprocal rank.
 - ⚡ **Native C++ search core** — inverted-index BM25 + passage ranking, millisecond lookup,
   low memory footprint (160–227 MB for a 1,500-paper library).
 - 🧩 **8 MCP tools** — 5 read + 3 write, with JSON-schema validated arguments, token budgets,
@@ -32,12 +34,14 @@ MCP shell  ← this package (@docsagent/mcp-zotero / docsagent-mcp-zotero)
    · group-library sync via the Zotero Web API
         │  JSON-RPC 2.0 over HTTP ({coreHost}:{httpPort}/rpc, cpp-httplib)
         ▼
-DocsAgent Core (resident C++ engine, papersgpt-agent)
-   · reads ~/Zotero/zotero.sqlite + storage/ directly on your machine
-   · builds & serves the full-text index (BM25 + passage ranking)
+DocsAgent Core (resident C++ engine)
+   · reads ~/Zotero/zotero.sqlite + storage/, an Obsidian vault, and (macOS) the
+     Apple Notes store — directly on your machine
+   · builds & serves one index per source (BM25 + passage ranking); mixed search
+     (source "all") fuses them by reciprocal rank (RRF, k=60)
 ```
 
-The shell **never spawns the core** during tool calls and never touches your Zotero files.
+The shell **never spawns the core** during tool calls and never touches your source files.
 The core runs as a background service and stays available across MCP client restarts.
 Tool schemas and error codes: [spec/](spec/).
 
@@ -59,8 +63,9 @@ pip install ./python                      # build the wheel locally (PyPI upload
 docsagent-mcp-zotero core start
 ```
 
-(`core stop` / `core restart` also available. The core reads your Zotero data directory,
-builds the full-text index, and serves JSON-RPC on `http://0.0.0.0:23120/rpc`.)
+(`core stop` / `core restart` also available. The core indexes every configured source — your
+Zotero data directory, your Obsidian vault, and (macOS) Apple Notes — and serves JSON-RPC on
+`http://0.0.0.0:23120/rpc`.)
 
 ### 2. Configure your MCP client
 
@@ -106,8 +111,14 @@ before handlers run and failures map to typed docsagent error codes.
 Every searchable source with capabilities, supported targets/includes/browse modes,
 filters, and document counts. **Call this first.**
 
+Sources today: `zotero` (targets `items`, `annotations`, `notes`; collections/tags browse),
+`obsidian` (a vault — notes as items, folders/tags browse), and `apple-notes` (**macOS only** —
+the engine omits the source on other platforms). The vault is found at
+`~/Documents/Obsidian Vault` (override with `DOCSAGENT_OBSIDIAN_VAULT`); Apple Notes is read
+from the system Notes store (override with `DOCSAGENT_APPLE_NOTES_DB`).
+
 ### `search`
-Cross-entry search over the whole library.
+Cross-entry search over one source (items, annotations, and notes).
 
 | Parameter | Type | Notes |
 |---|---|---|
@@ -120,11 +131,17 @@ Cross-entry search over the whole library.
 | `filters` | object | `tags`, `yearFrom`/`yearTo`, `itemType`, `authors`, `colors`, `containerId`, `titleContains` |
 | `k`, `snippetsPerResult`, `max_tokens` | numbers | ranking depth and token budget (`mode=grep`: max documents, max hit windows per document) |
 
-Returns `results[]` with global ids (`zotero:KEY`), titles, relevance, snippets; multi-target
+Returns `results[]` with global ids (`zotero:KEY`, `obsidian:<path>`, `apple-notes:<uuid>`),
+titles, relevance, snippets; multi-target
 searches group by target. In `mode=grep` each result carries `matchCount` and `snippets[]`
 hit windows (`hits[]` with `line`/`column`/`offset`, and meta hits tagged with `field`),
 `relevance` is `0`, and the response adds `totalMatches`. Results are deduped (id, then
 normalized title + year) and packed under a token budget.
+
+`search` runs against `config.defaultSource` (default `zotero`). **Mixed search** is a core
+capability: pass `source: "all"` to the core's `search` / `grep` methods and every source is
+ranked independently, then fused with **reciprocal rank fusion** (k=60) — each hit is tagged
+with its source. BM25 scores are not comparable across corpora, so fusion is rank-based.
 
 ### `get_content`
 Read one entry. `mode=passages` (query-ranked passages, `k`) or `mode=fulltext`
@@ -136,7 +153,8 @@ formatted via `citationFormat`/`citationStyle`). Notes are packed under the toke
 
 ### `list_library`
 Browse modes: `collections` (drill-down via `parentId`), `items` (by `containerId`),
-`tags`, `saved_searches`, `standalone_notes`.
+`tags`, `saved_searches`, `standalone_notes`. Browse modes are per source — Zotero exposes
+all of these, while Obsidian and Apple Notes expose `folders` (drill-down) / `tags` / `items`.
 
 ### Write tools (three-layer safety gate)
 
@@ -145,6 +163,8 @@ Browse modes: `collections` (drill-down via `parentId`), `items` (by `containerI
 | `import_item` | Import local PDFs or resolve DOI / ISBN / arXiv IDs (via the Zotero translation server); optional `autoClassify` suggests collections | `paths` \| `identifiers`, `containerId`, `autoClassify`, `confirmed` |
 | `add_note` | Add a Markdown child note to an item (converted to Zotero note HTML), with orphan verification and rollback | `id`, `content`, `tags`, `confirmed` |
 | `batch_modify` | Bulk `add_to_collection` / `remove_from_collection` / `add_tags` / `remove_tags` on up to 200 items in batches of 50 | `action`, `ids`, `containerId`, `tags`, `confirmed` |
+
+Write tools target **Zotero sources only** — the Obsidian and Apple Notes sources are read-only.
 
 Write safety gate (spec/algorithms/write-gate.md): **layer 1** write tools are not
 registered unless `enableWrites=true`; **layer 2** `confirmed=false` returns a preview and
@@ -191,7 +211,7 @@ the JS shell, the Python wrapper, and the C++ core. Validated against
 | `enableWrites` | `false` | Register the three write tools |
 | `writeRateLimitPerHour` | `30` | Confirmed-write rate limit |
 | `maxTokensPerTool` | `4000` | Token budget per tool result |
-| `defaultSource` | `zotero` | Source used when an id omits the prefix |
+| `defaultSource` | `zotero` | Source the shell searches and resolves id prefixes in (`zotero`, `obsidian`, `apple-notes`) |
 | `transport` | `stdio` | `stdio` or `streamable-http` |
 | `httpListenAddr` | `0.0.0.0:8080` | Listen address for streamable-http (`/mcp`) |
 | `authMode` / `authConfig` | `none` | `api-key` or `oauth2` (RFC 7662) + `allowedOrigins` |
@@ -208,7 +228,9 @@ the JS shell, the Python wrapper, and the C++ core. Validated against
 | PyPI (Python shell) | `docsagent-mcp-zotero` (`pip install ./python`) | same binaries in the wheel | ~65 MB wheel |
 
 Bundled core platforms: **macOS** universal (Intel + Apple Silicon), **Windows** x64
-(x86_64), **Linux** x64 (x86_64) — Linux ARM is **not** supported.
+(x86_64), **Linux** x64 (x86_64) — Linux ARM is **not** supported. Source availability:
+Zotero and Obsidian work on every platform; **Apple Notes is macOS-only** (`list_sources`
+omits it elsewhere).
 
 Both shells read the same config and talk to the same core — pick either (or both) as
 your MCP distribution channel. Core lifecycle (`start` / `stop` / `restart` / `status`)
