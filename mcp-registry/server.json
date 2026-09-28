@@ -1,9 +1,9 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
-  "name": "io.github.docsagent/zotero",
+  "name": "io.github.docsagent/docsagent",
   "display_name": "DocsAgent — Zotero MCP Server",
   "description": "DocsAgent gives AI agents instant, private access to your personal knowledge base. Zotero is the first supported source: search, read, and write a local Zotero library through a resident native C++ search engine - BM25 full-text search, query-ranked passage retrieval, metadata and citations, and gated write tools (import by DOI/arXiv, notes, batch modify). All local-first: the library never leaves the machine. Works with Claude Desktop, Cursor, Cline, and Qwen Code.",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "created_at": "2026-09-21T00:00:00Z",
   "updated_at": "2026-09-21T00:00:00Z",
   "website_url": "https://github.com/docsagent/docsagent",
@@ -15,7 +15,7 @@
     {
       "registry_type": "npm",
       "identifier": "@docsagent/mcp-zotero",
-      "version": "4.0.0",
+      "version": "5.0.0",
       "transport": {
         "type": "stdio"
       },
@@ -31,7 +31,7 @@
     {
       "registry_type": "pypi",
       "identifier": "docsagent-mcp-zotero",
-      "version": "4.0.0",
+      "version": "5.0.0",
       "transport": {
         "type": "stdio"
       },

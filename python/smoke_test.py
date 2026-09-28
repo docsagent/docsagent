@@ -64,6 +64,15 @@ print("7. write gate (enableWrites=false):", json.loads(res["content"][0]["text"
 res, payload = call(8, "search", {"query": "model", "target": ["annotations"]})
 print("8. bad-target/error shape check isError:", res.get("isError"), json.loads(res["content"][0]["text"]).get("error", {}).get("code", "(ok)"))
 
+res, payload = call(9, "search", {"mode": "grep", "pattern": "the", "target": ["items"], "k": 3})
+first = (payload.get("results") or [{}])[0]
+print("9. grep:", "totalMatches", payload.get("totalMatches"), "| first:", first.get("id"),
+      "| matchCount", first.get("matchCount"), "| windows", len(first.get("snippets") or []))
+
+res, payload = call(10, "search", {"mode": "grep", "pattern": "the", "depth": "ids", "k": 3})
+first = (payload.get("results") or [{}])[0]
+print("10. grep depth=ids strips snippets:", "snippets" not in first)
+
 proc.stdin.close()
 proc.wait(timeout=10)
 print("exit code:", proc.returncode)

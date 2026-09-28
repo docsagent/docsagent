@@ -15,7 +15,7 @@ const SOURCES = [
     includes: ["metadata", "abstract", "annotations", "notes", "citation"],
     browseModes: ["collections", "items", "tags", "saved_searches", "standalone_notes"],
     filters: ["containerId", "tags", "yearFrom", "yearTo", "itemType", "authors", "colors", "titleContains"],
-    capabilities: ["write", "citation"],
+    capabilities: ["write", "citation", "grep"],
   },
 ];
 
@@ -87,6 +87,55 @@ const SEARCH_RESULTS = [
   },
 ];
 
+/** mode=grep payload: one document with a coalesced two-hit window plus a meta hit. */
+const GREP_RESULTS = [
+  {
+    id: "ITEM1",
+    type: "item",
+    relevance: 0,
+    title: "Attention Is All You Need",
+    authors: ["Ashish Vaswani"],
+    year: 2017,
+    matchCount: 3,
+    matchesTruncated: false,
+    snippets: [
+      {
+        text: "doi:10.1038/s41586 and later work",
+        page: 3,
+        field: null,
+        leading: true,
+        trailing: true,
+        hitsTruncated: false,
+        hits: [
+          { line: 42, column: 118, offset: 18342, hitStart: 4, hitLength: 16 },
+          { line: 42, column: 190, offset: 18414, hitStart: 76, hitLength: 16 },
+        ],
+      },
+      {
+        text: "Attention Is All You Need",
+        page: null,
+        field: "title",
+        leading: false,
+        trailing: false,
+        hitsTruncated: false,
+        hits: [{ line: 1, column: 1, offset: 0, hitStart: 0, hitLength: 9 }],
+      },
+    ],
+  },
+  {
+    id: "ANN1",
+    type: "annotation",
+    relevance: 0,
+    itemTitle: "Attention Is All You Need",
+    text: "Scaled dot-product attention",
+    comment: "core mechanism",
+    color: "yellow",
+    page: 3,
+    matchCount: 1,
+    matchesTruncated: false,
+  },
+];
+
 const handlers = {
   health() {
     return { status: "ok", version: "4.0.0-mock", uptimeSec: 42 };
@@ -104,6 +153,18 @@ const handlers = {
     const typeByTarget = { items: "item", annotations: "annotation", notes: "note" };
     const wanted = new Set(params.targets.map((t) => typeByTarget[t]));
     return { results: SEARCH_RESULTS.filter((r) => wanted.has(r.type)) };
+  },
+  grep(params) {
+    const typeByTarget = { items: "item", annotations: "annotation", notes: "note" };
+    const wanted = new Set(params.targets.map((t) => typeByTarget[t]));
+    const results = GREP_RESULTS.filter((r) => wanted.has(r.type));
+    return {
+      results,
+      total: results.length,
+      totalMatches: results.reduce((n, r) => n + r.matchCount, 0),
+      truncated: false,
+      scanned: { docs: results.length, pages: 3, bytes: 4096, elapsedMs: 2 },
+    };
   },
   searchPassages(params) {
     return {

@@ -54,6 +54,8 @@ Shell-side request timeout is 30s (`core_timeout` on expiry). `indexGroupData` /
 
 - Personal library: `zotero:ABCD1234`
 - Group library: `zotero-group:12345:ABCD1234` (source `zotero-group:12345`)
+- Obsidian note: `obsidian:<vault-relative path>`
+- Apple Note (macOS only): `apple-notes:<note UUID>`
 
 Parsing: for `zotero-group:{gid}:{key}` split on the second colon; otherwise split on
 the first colon. Shells validate the source against `listSources` and return
@@ -64,7 +66,7 @@ the first colon. Shells validate the source against `listSources` and return
 | Group | Methods |
 |---|---|
 | Data | `getItem` `getAnnotations` `getNotes` `getStandaloneNote` `getContent` `listCollections` `listCollectionItems` `listTags` `listSavedSearches` `listStandaloneNotes` `getCitation` `getStats` |
-| Retrieval | `search` `searchPassages` `batchSearchPassages` |
+| Retrieval | `search` `searchPassages` `batchSearchPassages` `grep` |
 | Index | `buildIndex` `updateIndex` `indexGroupData` `syncGroupIndex` `deleteGroupIndex` `indexStatus` |
 | System | `health` `listSources` |
 

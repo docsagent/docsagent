@@ -94,6 +94,16 @@ export function requireTarget(source: SourceInfo, target: string): void {
   }
 }
 
+export function requireCapability(source: SourceInfo, capability: string): void {
+  const caps = source.capabilities ?? [];
+  if (!caps.includes(capability)) {
+    throw new DocsAgentError(
+      "capability_not_supported",
+      `Source "${source.name}" does not declare the "${capability}" capability (declares: ${caps.length ? caps.join(", ") : "none"})`,
+    );
+  }
+}
+
 export function requireInclude(source: SourceInfo, include: string): void {
   const includes = source.includes ?? [];
   if (includes.length > 0 && !includes.includes(include)) {

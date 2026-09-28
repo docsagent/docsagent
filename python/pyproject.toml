@@ -1,6 +1,6 @@
 [project]
 name = "docsagent-mcp-zotero"
-version = "4.0.0"
+version = "5.0.0"
 description = "DocsAgent - give AI agents instant, private access to your personal knowledge base. Zotero MCP server (Python) over a resident native C++ search engine."
 readme = "README.md"
 requires-python = ">=3.10"

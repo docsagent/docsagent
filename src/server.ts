@@ -28,7 +28,7 @@ import { serveStdio } from "./transports/stdio.js";
 import { serveHttp } from "./transports/http.js";
 
 export const SERVER_NAME = "docsagent-mcp-zotero";
-export const SERVER_VERSION = "4.0.0";
+export const SERVER_VERSION = "5.0.0";
 
 const HANDLERS: Record<string, ToolHandler> = {
   search: searchTool,

@@ -31,6 +31,10 @@ const getBinaryInfo = () => {
       "pdfium.dll",
     ];
   } else if (platform === "linux") {
+    if (arch !== "x64") {
+      console.error("Unsupported architecture: the bundled Linux core is x86_64 only (no Linux ARM support).");
+      return { binaryName: "", libs: [] };
+    }
     binaryName = "docsagent-linux-gnu";
     libs = ["libawadb.so", "libpdfium.so"];
   }

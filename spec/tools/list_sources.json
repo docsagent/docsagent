@@ -1,7 +1,7 @@
 {
   "name": "list_sources",
   "title": "List sources",
-  "description": "List every available source (personal library, group libraries, future: Obsidian/Apple Notes/local docs) with its capabilities, supported targets/includes/browse modes/filters, and document counts. Call this first to discover valid ids and capabilities.",
+  "description": "List every available source (personal library, group libraries, Obsidian vaults, Apple Notes — macOS only, the engine omits the source off-mac; future: local docs) with its capabilities, supported targets/includes/browse modes/filters, and document counts. Call this first to discover valid ids and capabilities.",
   "inputSchema": {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",

@@ -1,7 +1,7 @@
 {
   "name": "search",
   "title": "Search library",
-  "description": "Cross-entry search across the library. Searches items (papers/books), annotations (highlights with your comments), and notes. Returns snippets by default. Use filters to narrow scope; use depth=full only when snippets are not enough.",
+  "description": "Cross-entry search across the library. Searches items (papers/books), annotations (highlights with your comments), and notes. mode=relevance (default) ranks by BM25 and returns matching passages; mode=grep scans for a literal pattern without tokenization and returns every hit with line/offset positions. Use filters to narrow scope; use depth=full only when snippets are not enough.",
   "inputSchema": {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -9,7 +9,7 @@
       "query": {
         "type": "string",
         "minLength": 1,
-        "description": "Search query. Plain keywords or phrases."
+        "description": "Search query for mode=relevance. Plain keywords or phrases."
       },
       "target": {
         "description": "Search target(s). Default: items.",
@@ -27,14 +27,14 @@
       "depth": {
         "enum": ["ids", "snippets", "full"],
         "default": "snippets",
-        "description": "ids: metadata only. snippets: matching passages per result (default). full: full text of each result, truncated to the token budget."
+        "description": "ids: metadata only. snippets: matching passages per result (default). full: full text of each result, truncated to the token budget. In mode=grep: ids returns matchCount only, snippets returns hit windows, full still fetches each document's text."
       },
       "snippetsPerResult": {
         "type": "integer",
         "minimum": 1,
         "maximum": 10,
         "default": 3,
-        "description": "Number of passages per result when depth=snippets."
+        "description": "Number of passages per result when depth=snippets. In mode=grep, the maximum number of hit windows per document."
       },
       "filters": {
         "type": "object",
@@ -60,7 +60,7 @@
         "minimum": 1,
         "maximum": 50,
         "default": 10,
-        "description": "Max results per target."
+        "description": "Max results per target. In mode=grep, the maximum number of documents."
       },
       "max_tokens": {
         "type": "integer",
@@ -68,9 +68,38 @@
         "maximum": 50000,
         "default": 4000,
         "description": "Token budget for the response."
+      },
+      "mode": {
+        "enum": ["relevance", "grep"],
+        "default": "relevance",
+        "description": "relevance: BM25 ranking (default). grep: literal scan without tokenization or ranking; returns every occurrence of pattern with line/offset positions."
+      },
+      "pattern": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Literal string to scan for in mode=grep. Matched verbatim (no tokenization, stemming, or stop words). Required when mode=grep; ignored when mode=relevance."
+      },
+      "caseSensitive": {
+        "type": "boolean",
+        "default": false,
+        "description": "mode=grep only: match case-sensitively. Folding is ASCII-only; non-ASCII case pairs are never folded."
+      },
+      "wholeWord": {
+        "type": "boolean",
+        "default": false,
+        "description": "mode=grep only: report a hit only when it is not adjacent to [A-Za-z0-9_]."
+      },
+      "maxMatches": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 1000,
+        "default": 1000,
+        "description": "mode=grep only: stop scanning after this many hits in total; the response is marked truncated when it is reached."
       }
     },
-    "required": ["query"],
+    "if": { "properties": { "mode": { "const": "grep" } }, "required": ["mode"] },
+    "then": { "required": ["pattern"] },
+    "else": { "required": ["query"] },
     "additionalProperties": false
   }
 }

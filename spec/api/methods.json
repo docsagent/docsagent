@@ -456,6 +456,97 @@
         "required": ["docs"]
       }
     },
+    "grep": {
+      "description": "Literal scan over one source's indexed text. No ranking; returns per-document hit windows with line/offset positions. See algorithms/grep.md.",
+      "request": {
+        "type": "object",
+        "properties": {
+          "source": { "$ref": "#/common/sourceParam" },
+          "targets": { "type": "array", "items": { "$ref": "#/common/target" }, "minItems": 1 },
+          "pattern": { "type": "string", "minLength": 1 },
+          "caseSensitive": { "type": "boolean", "default": false },
+          "wholeWord": { "type": "boolean", "default": false },
+          "filters": { "$ref": "#/common/filters" },
+          "k": { "type": "integer", "minimum": 1, "maximum": 50, "description": "Max documents per target." },
+          "maxMatches": { "type": "integer", "minimum": 1, "maximum": 1000, "default": 1000 },
+          "maxSnippetsPerDoc": { "type": "integer", "minimum": 1, "maximum": 10, "default": 3 },
+          "maxScanBytes": { "type": "integer", "minimum": 1, "default": 268435456 }
+        },
+        "required": ["source", "targets", "pattern"],
+        "additionalProperties": false
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                { "$ref": "#/common/itemSummary" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "source": { "type": "string" },
+                    "itemTitle": { "type": ["string", "null"], "description": "annotations: title of parent item" },
+                    "text": { "type": ["string", "null"], "description": "annotations: hit text" },
+                    "comment": { "type": ["string", "null"] },
+                    "color": { "type": ["string", "null"] },
+                    "noteType": { "type": ["string", "null"], "description": "notes: child | standalone" },
+                    "parentId": { "type": ["string", "null"] },
+                    "matchCount": { "type": "integer", "description": "Total hits in this document; MAY exceed the number of returned hits." },
+                    "matchesTruncated": { "type": "boolean", "description": "maxSnippetsPerDoc was reached for this document." },
+                    "snippets": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "text": { "type": "string" },
+                          "page": { "type": ["integer", "null"] },
+                          "field": { "type": ["string", "null"], "description": "null for page text; else title | abstract | tags | notes | annotation" },
+                          "leading": { "type": "boolean", "description": "window starts after the text start" },
+                          "trailing": { "type": "boolean", "description": "window ends before the text end" },
+                          "hitsTruncated": { "type": "boolean" },
+                          "hits": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "line": { "type": "integer" },
+                                "column": { "type": "integer", "description": "Codepoints from line start." },
+                                "offset": { "type": "integer", "description": "Byte offset; page content offsets address getContent." },
+                                "hitStart": { "type": "integer" },
+                                "hitLength": { "type": "integer" }
+                              },
+                              "required": ["line", "column", "offset", "hitStart", "hitLength"]
+                            }
+                          }
+                        },
+                        "required": ["text", "hits"]
+                      }
+                    }
+                  },
+                  "required": ["matchCount", "matchesTruncated"]
+                }
+              ]
+            }
+          },
+          "total": { "type": "integer", "description": "Documents with matches." },
+          "totalMatches": { "type": "integer" },
+          "truncated": { "type": "boolean" },
+          "scanned": {
+            "type": "object",
+            "properties": {
+              "docs": { "type": "integer" },
+              "pages": { "type": "integer" },
+              "bytes": { "type": "integer" },
+              "elapsedMs": { "type": "integer" }
+            },
+            "required": ["docs", "bytes"]
+          }
+        },
+        "required": ["results", "total", "totalMatches", "truncated"]
+      }
+    },
     "buildIndex": {
       "description": "Build or rebuild the index of one source. Background; poll indexStatus.",
       "request": {

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.docsagent/docsagent",
+  "title": "DocsAgent — Zotero MCP Server",
+  "description": "Give AI agents instant, private access to your personal knowledge base. First source: Zotero.",
+  "version": "5.0.0",
+  "websiteUrl": "https://github.com/docsagent/docsagent",
+  "repository": {
+    "url": "https://github.com/docsagent/docsagent",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@docsagent/mcp-zotero",
+      "version": "5.0.0",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "DOCSAGENT_CONFIG",
+          "description": "Path to the shared docsagent config file (default: ~/.docsagent/config.json)",
+          "format": "filepath",
+          "isRequired": false
+        }
+      ]
+    },
+    {
+      "registryType": "pypi",
+      "identifier": "docsagent-mcp-zotero",
+      "version": "5.0.0",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "DOCSAGENT_CONFIG",
+          "description": "Path to the shared docsagent config file (default: ~/.docsagent/config.json)",
+          "format": "filepath",
+          "isRequired": false
+        }
+      ]
+    }
+  ]
+}

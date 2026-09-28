@@ -30,6 +30,9 @@ allocate(items, maxTokens):
 
 Drop whole results; never partially cut a snippet-bearing result at this level.
 
+In `mode=grep` the atom is a hit window (its `hits` array travels together) and the drop
+unit is a document, so the rule above holds unchanged.
+
 ## Content-level truncation
 
 Applied to single large strings (note bodies, fulltext):

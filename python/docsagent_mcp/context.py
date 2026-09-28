@@ -88,6 +88,16 @@ def require_target(source: dict, target: str) -> None:
         )
 
 
+def require_capability(source: dict, capability: str) -> None:
+    caps = source.get("capabilities") or []
+    if capability not in caps:
+        declared = ", ".join(caps) if caps else "none"
+        raise DocsAgentError(
+            "capability_not_supported",
+            f'Source "{source["name"]}" does not declare the "{capability}" capability (declares: {declared})',
+        )
+
+
 def require_include(source: dict, include: str) -> None:
     includes = source.get("includes") or []
     if includes and include not in includes:

@@ -95,7 +95,7 @@ const BUNDLED_BINARIES: Record<string, string> = {
   "darwin-arm64": "docsagent-universal-apple-darwin",
   "darwin-x64": "docsagent-universal-apple-darwin",
   "linux-x64": "docsagent-linux-gnu",
-  "linux-arm64": "docsagent-linux-gnu",
+  // The Linux core is built for x86_64 only — Linux ARM is not supported.
   "win32-x64": "docsagent-x86_64-pc-windows-msvc.exe",
 };
 
@@ -125,7 +125,9 @@ export function resolveCoreBinary(config: DocsAgentConfig): string {
   throw new DocsAgentError(
     "core_unavailable",
     `No DocsAgent Core binary found for ${process.platform}-${process.arch}. ` +
-      `Set "coreBinary" in ${configPath()} to the core binary path.`,
+      "Supported platforms: macOS universal (Intel + Apple Silicon), Windows x64, " +
+      "Linux x64 (x86_64 only — no Linux ARM). " +
+      `Alternatively set "coreBinary" in ${configPath()} to the core binary path.`,
   );
 }
 

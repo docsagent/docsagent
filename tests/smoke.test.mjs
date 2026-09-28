@@ -159,6 +159,7 @@ test("stdio: boots against the core, lists 8 tools, and serves reads", { timeout
   assert.deepEqual(names, [...READ_TOOLS, ...WRITE_TOOLS].sort());
   const searchToolSpec = tools.result.tools.find((tool) => tool.name === "search");
   assert.equal(searchToolSpec.inputSchema.properties.query.type, "string");
+  assert.equal(searchToolSpec.inputSchema.properties.mode.default, "relevance");
   assert.equal(searchToolSpec.annotations.readOnlyHint, true);
 
   const search = await shell.callTool("search", { query: "attention" });
@@ -172,6 +173,33 @@ test("stdio: boots against the core, lists 8 tools, and serves reads", { timeout
   assert.equal(ann.text, "Scaled dot-product attention");
   assert.equal(ann.page, 3);
   assert.ok(!("snippets" in ann), "annotation results carry no snippets");
+
+  // mode=grep: hit windows come from the scan call, relevance is 0, no ranking
+  const grep = await shell.callTool("search", { mode: "grep", pattern: "10.1038/s41586", target: "items" });
+  const grepHit = grep.body.results[0];
+  assert.equal(grepHit.id, "zotero:ITEM1");
+  assert.equal(grepHit.relevance, 0);
+  assert.equal(grepHit.matchCount, 3);
+  assert.equal(grep.body.totalMatches, 3);
+  assert.equal(grepHit.snippets.length, 2);
+  assert.equal(grepHit.snippets[0].hits.length, 2, "hits coalesce into one window");
+  assert.deepEqual(grepHit.snippets[0].hits[0], { line: 42, column: 118, offset: 18342, hitStart: 4, hitLength: 16 });
+  assert.equal(grepHit.snippets[1].field, "title");
+  assert.equal(grep.body.truncated, false);
+
+  const grepIds = await shell.callTool("search", { mode: "grep", pattern: "x", target: "items", depth: "ids" });
+  assert.equal(grepIds.body.results[0].matchCount, 3);
+  assert.ok(!("snippets" in grepIds.body.results[0]), "depth=ids must drop grep snippets");
+
+  const grepAnn = await shell.callTool("search", { mode: "grep", pattern: "attention", target: "annotations" });
+  assert.equal(grepAnn.body.results[0].text, "Scaled dot-product attention");
+  assert.equal(grepAnn.body.results[0].matchCount, 1);
+  assert.ok(!("snippets" in grepAnn.body.results[0]), "annotation grep results carry no snippets");
+
+  const noPattern = await shell.callTool("search", { mode: "grep" });
+  assert.equal(noPattern.body.error.code, "invalid_params");
+  const patternWithoutMode = await shell.callTool("search", { pattern: "x" });
+  assert.equal(patternWithoutMode.body.error.code, "invalid_params");
 
   const meta = await shell.callTool("get_metadata", { id: "zotero:ITEM1", include: ["metadata", "notes"] });
   assert.equal(meta.body.metadata.title, "Attention Is All You Need");

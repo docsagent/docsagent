@@ -1,6 +1,7 @@
 {
   "name": "@docsagent/mcp-zotero",
-  "version": "4.0.0",
+  "version": "5.0.0",
+  "mcpName": "io.github.docsagent/docsagent",
   "description": "DocsAgent MCP shell for Zotero — spec-driven MCP server over a resident C++ search core (stdio + Streamable HTTP)",
   "type": "module",
   "main": "dist/cli.js",

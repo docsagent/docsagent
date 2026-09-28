@@ -1,5 +1,7 @@
 # DocsAgent MCP shell for Zotero (Python)
 
+<!-- mcp-name: io.github.docsagent/docsagent -->
+
 Python port of the TypeScript [`@docsagent/mcp-zotero`](../) shell — an MCP
 server that talks to the resident [DocsAgent C++ search core](../../spec/api/)
 over `POST http://{coreHost}:{httpPort}/rpc`. Same tool names, same schemas
@@ -41,8 +43,9 @@ file the JS shell and the C++ core read. Environment overrides: `DOCSAGENT_CONFI
 
 ## Bundled core + lifecycle
 
-The wheel ships the C++ core binaries for **every platform** (`docsagent_mcp/bin/`,
-the same files as the npm package's `bin/`) plus their dylibs. Manage the resident
+The wheel ships the C++ core binaries for every supported platform (`docsagent_mcp/bin/`,
+the same files as the npm package's `bin/`): macOS universal (Intel + Apple Silicon),
+Windows x64, Linux x64 — **Linux ARM is not supported** — plus their dylibs. Manage the resident
 core from the same CLI:
 
 ```bash

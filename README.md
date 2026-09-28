@@ -111,15 +111,20 @@ Cross-entry search over the whole library.
 
 | Parameter | Type | Notes |
 |---|---|---|
-| `query` | string, required | plain keywords or phrases |
+| `query` | string | plain keywords or phrases; required unless `mode=grep` |
+| `mode` | `relevance` \| `grep` | BM25 relevance by default; `grep` scans for a **literal** pattern without tokenization or ranking |
+| `pattern` | string, required when `mode=grep` | literal string to scan for |
+| `caseSensitive`, `wholeWord`, `maxMatches` | | `mode=grep` only: ASCII case folding, `[A-Za-z0-9_]` word boundaries, hit cap total |
 | `target` | `"items" \| "annotations" \| "notes"` or array | default `items` |
 | `depth` | `ids` \| `snippets` \| `full` | snippets by default (BM25-ranked passages) |
 | `filters` | object | `tags`, `yearFrom`/`yearTo`, `itemType`, `authors`, `colors`, `containerId`, `titleContains` |
-| `k`, `snippetsPerResult`, `max_tokens` | numbers | ranking depth and token budget |
+| `k`, `snippetsPerResult`, `max_tokens` | numbers | ranking depth and token budget (`mode=grep`: max documents, max hit windows per document) |
 
 Returns `results[]` with global ids (`zotero:KEY`), titles, relevance, snippets; multi-target
-searches group by target. Results are deduped (id, then normalized title + year) and packed
-under a token budget.
+searches group by target. In `mode=grep` each result carries `matchCount` and `snippets[]`
+hit windows (`hits[]` with `line`/`column`/`offset`, and meta hits tagged with `field`),
+`relevance` is `0`, and the response adds `totalMatches`. Results are deduped (id, then
+normalized title + year) and packed under a token budget.
 
 ### `get_content`
 Read one entry. `mode=passages` (query-ranked passages, `k`) or `mode=fulltext`
@@ -201,6 +206,9 @@ the JS shell, the Python wrapper, and the C++ core. Validated against
 |---|---|---|---|
 | npm (JS/TS shell) | `@docsagent/mcp-zotero` | all platforms in `bin/` | ~70 MB tarball |
 | PyPI (Python shell) | `docsagent-mcp-zotero` (`pip install ./python`) | same binaries in the wheel | ~65 MB wheel |
+
+Bundled core platforms: **macOS** universal (Intel + Apple Silicon), **Windows** x64
+(x86_64), **Linux** x64 (x86_64) — Linux ARM is **not** supported.
 
 Both shells read the same config and talk to the same core — pick either (or both) as
 your MCP distribution channel. Core lifecycle (`start` / `stop` / `restart` / `status`)

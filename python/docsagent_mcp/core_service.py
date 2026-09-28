@@ -76,7 +76,9 @@ def resolve_core_binary(config: dict) -> Path:
     raise DocsAgentError(
         "core_unavailable",
         f"No DocsAgent Core binary found for {sys.platform}-{machine_key()}. "
-        f'Set "coreBinary" in {config_path()} to the core binary path.',
+        "Supported platforms: macOS universal (Intel + Apple Silicon), Windows x64, "
+        "Linux x64 (x86_64 only — no Linux ARM). "
+        f'Alternatively set "coreBinary" in {config_path()} to the core binary path.',
     )
 
 
