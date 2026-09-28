@@ -1,7 +1,7 @@
 # DocsAgent MCP — Zotero, Obsidian & Apple Notes for AI agents 📚⚡
 
 **DocsAgent gives AI agents instant, private access to your personal knowledge base.**
-**`@docsagent/mcp-zotero`** is the spec-driven **MCP (Model Context Protocol) server** that lets
+**`docsagent`** is the spec-driven **MCP (Model Context Protocol) server** that lets
 any AI agent — Claude Desktop, Cursor, Cline, Qwen Code, or any MCP client — search, read, and
 write your **Zotero** library, **Obsidian** vault, and **Apple Notes** (macOS) through a resident
 **C++ search engine**. BM25 full-text search + query-ranked passage retrieval over **1,000+ PDFs**
@@ -52,15 +52,15 @@ Tool schemas and error codes: [spec/](spec/).
 ### 1. Start the core
 
 ```bash
-npx @docsagent/mcp-zotero start           # spawn the bundled core for your platform
-npx @docsagent/mcp-zotero status          # pid / endpoint / version
+npx @docsagent/docsagent start           # spawn the bundled core for your platform
+npx @docsagent/docsagent status          # pid / endpoint / version
 ```
 
 Python shell (same verbs, under the `core` subcommand):
 
 ```bash
 pip install ./python                      # build the wheel locally (PyPI upload pending)
-docsagent-mcp-zotero core start
+docsagent-mcp core start
 ```
 
 (`core stop` / `core restart` also available. The core indexes every configured source — your
@@ -74,9 +74,9 @@ Claude Desktop / Cursor / Cline / Qwen Code (`mcpServers`):
 ```json
 {
   "mcpServers": {
-    "docsagent-zotero": {
+    "docsagent": {
       "command": "npx",
-      "args": ["-y", "@docsagent/mcp-zotero"]
+      "args": ["-y", "@docsagent/docsagent"]
     }
   }
 }
@@ -88,13 +88,13 @@ Python shell (same tools, same contract, installed from this repo) — `mcpServe
 {
   "mcpServers": {
     "docsagent-zotero-py": {
-      "command": "docsagent-mcp-zotero"
+      "command": "docsagent-mcp"
     }
   }
 }
 ```
 
-Install the Python package first (step 1) so `docsagent-mcp-zotero` is on your PATH.
+Install the Python package first (step 1) so `docsagent-mcp` is on your PATH.
 
 On startup the shell connects to the core, loads sources, and checks index status. If the
 core is not running it fails fast with startup instructions — it never spawns anything.
@@ -176,9 +176,9 @@ consumes no rate-limit quota; **layer 3** confirmed writes consume a per-hour ra
 
 ## Engine performance
 
-The C++ engine powers [PapersGPT](https://www.papersgpt.com/zh) — the same index and
+The C++ engine powers [PapersGPT](https://www.papersgpt.com) — the same index and
 retrieval stack ships in this MCP server. Benchmark on a real Zotero installation
-([full write-up](https://www.papersgpt.com/zh/blogs/papersgpt-search-performance-benchmark)):
+([full write-up](https://www.papersgpt.com/en/blogs/papersgpt-search-performance-benchmark)):
 
 | Metric | Mac (Intel i9) | Windows VM (4C8G) |
 |---|---|---|
@@ -224,8 +224,8 @@ the JS shell, the Python wrapper, and the C++ core. Validated against
 
 | Channel | Package | Bundled core | Size |
 |---|---|---|---|
-| npm (JS/TS shell) | `@docsagent/mcp-zotero` | all platforms in `bin/` | ~70 MB tarball |
-| PyPI (Python shell) | `docsagent-mcp-zotero` (`pip install ./python`) | same binaries in the wheel | ~65 MB wheel |
+| npm (JS/TS shell) | `@docsagent/docsagent` | all platforms in `bin/` | ~70 MB tarball |
+| PyPI (Python shell) | `docsagent-mcp` (`pip install ./python`) | same binaries in the wheel | ~65 MB wheel |
 
 Bundled core platforms: **macOS** universal (Intel + Apple Silicon), **Windows** x64
 (x86_64), **Linux** x64 (x86_64) — Linux ARM is **not** supported. Source availability:
@@ -240,7 +240,7 @@ is available from both CLIs.
 
 - [spec/](spec/) — the single-sourced contract: 8 tool schemas, 23 JSON-RPC methods,
   error codes + suggested calls, config schema
-- [PapersGPT search performance benchmark](https://www.papersgpt.com/zh/blogs/papersgpt-search-performance-benchmark)
+- [PapersGPT search performance benchmark](https://www.papersgpt.com/en/blogs/papersgpt-search-performance-benchmark)
 - [Zotero](https://www.zotero.org/) · [Model Context Protocol](https://modelcontextprotocol.io)
 
 ## License
