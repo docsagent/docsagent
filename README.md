@@ -1,5 +1,9 @@
 # DocsAgent MCP — Zotero, Obsidian & Apple Notes for AI agents 📚⚡
 
+[![App Store](https://img.shields.io/badge/App%20Store-iPhone%20app-0D96F6?logo=appstore&logoColor=white)](https://apps.apple.com/us/app/docsagent/id6829574595)
+[![Website](https://img.shields.io/badge/Website-docsagent.app-0ea5e9)](https://www.docsagent.app)
+[![License](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE)
+
 **DocsAgent gives AI agents instant, private access to your personal knowledge base.**
 **`docsagent`** is the spec-driven **MCP (Model Context Protocol) server** that lets
 any AI agent — Claude Desktop, Cursor, Cline, Qwen Code, or any MCP client — search, read, and
@@ -19,6 +23,26 @@ at **~15 ms**, fully local (RAG-ready knowledge base).
   (origin checks, API-key / OAuth 2.0 token introspection, per-request RBAC, `/health` probe).
 - 🐍 **Two shells, one core** — this TypeScript package and a feature-equal
   [Python wrapper](python/) ship the same tools over the same JSON-RPC contract.
+
+> 📱 **On the go?** [**DocsAgent for iPhone**](https://apps.apple.com/us/app/docsagent/id6829574595) —
+> your Zotero library in your pocket, with AI chat. Free on the App Store.
+
+---
+
+## 📱 DocsAgent for iPhone
+
+Same library, smaller screen. The iPhone app turns your Zotero library into **pocket Zotero** —
+ask any paper anything while you're away from your desk.
+
+- **Search everything** — titles, authors, and full text across your whole library
+- **Chat with papers** — grounded answers that cite the exact passage
+- **Private by design** — no account, no sign-in, your library stays on your devices
+- **Pairs with the Mac companion** — scan a pairing code once, no computer needed afterwards
+
+**[Download on the App Store →](https://apps.apple.com/us/app/docsagent/id6829574595)**
+Free · iOS 16 or newer · Not yet available in mainland China or the EU
+
+Also available on the web: [docsagent.app](https://www.docsagent.app)
 
 ---
 
@@ -238,6 +262,8 @@ is available from both CLIs.
 
 ## Links
 
+- [DocsAgent for iPhone](https://apps.apple.com/us/app/docsagent/id6829574595) — App Store
+- [docsagent.app](https://www.docsagent.app) — website, setup guide, support
 - [spec/](spec/) — the single-sourced contract: 8 tool schemas, 23 JSON-RPC methods,
   error codes + suggested calls, config schema
 - [PapersGPT search performance benchmark](https://www.papersgpt.com/en/blogs/papersgpt-search-performance-benchmark)
